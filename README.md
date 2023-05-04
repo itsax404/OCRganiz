@@ -1,8 +1,6 @@
-# Projet *LaPoste-ESIREM*
+# Projet *OCRganiz*
 
-*Le nom selon notre professeur de projet programmation*
-
-## C'est quoi *LaPoste-ESIREM* ?
+## C'est quoi *OCRganiz* ?
 Cela permet d'enregistrer des fichiers, telles que des factures, fiches de paie, en utilisant de l'OCR *(Opticial Recognization Character)* afin de pouvoir les trier.
 
 ## Annexes

@@ -7,7 +7,7 @@ from .bases.adresse import Adresse
 class Facture:
 
 	def __init__(self, acheteur: Personne, adresse: Adresse, enseigne: Entreprise, prix_ht: float, prix_ttc: float,
-	             date_achat: datetime.date, fichier: bytes) -> None:
+	             date_achat: datetime.date, fichier: bytes, id: int =-1) -> None:
 		"""
 		TODO docstring
 		:param acheteur:
@@ -25,14 +25,24 @@ class Facture:
 		self.prix_ttc = prix_ttc
 		self.date_achat = date_achat
 		self.fichier = fichier
+		self.id = id
 
 	def avoir_donnees(self):
 		return {
-			"nom_acheteur": self.acheteur.nom,
-			"prenom_acheteur": self.acheteur.prenom,
-			"adresse_acheteur": self.adresse.avoir_bdd(),
-			"enseigne_magasin": self.enseigne.nom,
-			"adresse_magasin": str(self.enseigne.adresse),
+			"acheteur": self.acheteur,
+			"adresse": self.adresse,
+			"enseigne": self.enseigne,
+			"prix_ht": self.prix_ht,
+			"prix_ttc": self.prix_ttc,
+			"date_achat": self.date_achat,
+			"fichier": self.fichier
+		}
+	
+	def avoir_donnees_bdd(self):
+		return {
+			"acheteur": self.acheteur.avoir_identifiant(),
+			"adresse": self.adresse.avoir_identifiant(),
+			"enseigne": self.enseigne.avoir_identifiant(),
 			"prix_ht": self.prix_ht,
 			"prix_ttc": self.prix_ttc,
 			"date_achat": self.date_achat,

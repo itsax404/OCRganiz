@@ -29,7 +29,7 @@ class Database:
 		self.connexion.commit()
 		cursor.close()
 
-	def ajotuer_adresse(self, adresse: Adresse):
+	def ajouter_adresse(self, adresse: Adresse):
 		"""
 		TODO docstring
 		:param adresse:
@@ -38,7 +38,10 @@ class Database:
 		cursor = self.connexion.cursor()
 		cursor.execute('INSERT INTO adresses (numero, rue, code_postal, ville, region, pays) VALUES (?, ?, ?, ?, ?, ?)', tuple(adresse.avoir_donnees().values()))
 		self.connexion.commit()
+		donnees = adresse.avoir_donnees()
+		nouvelle_adresse = Adresse(donnees["numero_rue"], donnees["adresse"], donnees["code_postal"], donnees["ville"], donnees["region"], donnees["pays"], cursor.lastrowid)
 		cursor.close()
+		return nouvelle_adresse
 
 	def avoir_adresse(self, id: int):
 		"""
@@ -56,8 +59,9 @@ class Database:
 		adresses = self.avoir_toutes_les_adresses()
 		for adresse_de_la_base in adresses:
 			if adresse_de_la_base == adresse:
-				return True
-		return False
+				print(adresse_de_la_base, adresse_de_la_base.avoir_identifiant())
+				return adresse_de_la_base
+		return None
 
 	def avoir_toutes_les_adresses(self):
 		"""
@@ -69,7 +73,7 @@ class Database:
 		resultat = cursor.fetchall()
 		adresses = []
 		for adresse in resultat:
-			adresse_classe = Adresse(adresse[1], adresse[2], adresse[3], adresse[4], adresse[5], adresse[6])
+			adresse_classe = Adresse(adresse[1], adresse[2], adresse[3], adresse[4], adresse[5], adresse[6], adresse[0])
 			adresses.append(adresse_classe)
 		cursor.close()
 		return adresses
@@ -95,7 +99,7 @@ class Database:
 		cursor.execute('SELECT * FROM personnes WHERE id = ?', (id,))
 		resultat = cursor.fetchone()
 		cursor.close()
-		return Personne(resultat[1], resultat[2])
+		return Personne(resultat[1], resultat[2], resultat[0])
 
 	def avoir_toutes_les_personnes(self):
 		"""
@@ -107,18 +111,54 @@ class Database:
 		resultat = cursor.fetchall()
 		personnes = []
 		for personne in resultat:
-			personne_classe = Personne(personne[1], personne[2])
+			personne_classe = Personne(personne[1], personne[2], personne[0])
 			personnes.append(personne_classe)
 		cursor.close()
 		return personnes
 
 	def ajouter_entreprise(self, entreprise: Entreprise):
+		"""
+		TODO docstring
+		"""
 		curseur = self.connexion.cursor()
+		entreprise_bdd = self.entreprise_est_dans_la_base(entreprise)
+		if entreprise is not None:
+			return entreprise_bdd
+
 		adresse_entreprise = entreprise.adresse
-		if not self.adresse_est_dans_la_base(adresse_entreprise):
-			self.ajouter_adresse(adresse_entreprise)
-		self.connexion.commit()
+		adresse_bdd = self.adresse_est_dans_la_base(adresse_entreprise)
+		print(adresse_bdd)
+		if adresse_bdd is not None:
+			adresse_entreprise = adresse_bdd
+		else:
+			adresse_entreprise = self.ajouter_adresse(adresse_entreprise)
+		curseur.execute("INSERT INTO entreprises (nom, adresse) VALUES (?, ?)", tuple((entreprise.avoir_nom(), adresse_entreprise.avoir_identifiant())))
+		print(curseur.lastrowid)
+		print("curseur")
+		self.connexion.commit()	
 		curseur.close()
+		print("b")
+
+
+	def avoir_toutes_les_entreprise(self):
+		curseur = self.connexion.cursor()
+		curseur.execute("SELECT * FROM entreprises")
+		resultat = curseur.fetchall()
+		entreprises = list()
+		for entreprise in entreprises:
+			adresse_classe = self.avoir_adresse(entreprise[2])
+			entreprise_classe = Entreprise(entreprise[1], adresse_classe, entreprise[0])
+			entreprises.append(entreprise_classe)
+		curseur.close()
+		return entreprises
+
+
+	def entreprise_est_dans_la_base(self, enseigne: Entreprise):
+		entreprises = self.avoir_toutes_les_entreprise()
+		for entreprise_de_la_base in entreprises:
+			if entreprise_de_la_base == entreprise:
+				return entreprise_de_la_base
+		return None
 
 	def ajouter_facture(self, facture: Facture):
 		"""
@@ -127,8 +167,26 @@ class Database:
 		:return:
 		"""
 		donnees = facture.avoir_donnees()
+		adresse_bdd = self.adresse_est_dans_la_base(donnees["adresse"])
+		if adresse_bdd is None:
+			donnees["adresse"] = self.ajouter_adresse(donnees["adresse"])
+		else:
+			if donnees["adresse"].avoir_identifiant() == -1:
+				donnees["adresse"] = adresse_bdd
+		enseigne_bdd = self.enseigne_est_dans_la_base(donnees["enseigne"])
+		if enseigne_bdd is None:
+			donnees["enseigne"] = self.ajouter_adresse(donnees["enseigne"])
+		else:
+			if donnees["enseigne"].avoir_identifiant() == -1:
+				donnees["enseigne"] = enseigne_bdd
+		personne_bdd = self.personne_est_dans_la_base(donnees["acheteur"])
+		if personne is None:
+			donnees["acheteur"] = self.ajouter_personne(donnees["acheteur"])
+		else:
+			if donnees["acheteur"].avoir_identifiant() == -1:
+				donnees["acheteur"] =personne_bdd
 		cursor = self.connexion.cursor()
-		cursor.execute('INSERT INTO factures (nom_acheteur, prenom_acheteur, adresse_acheteur, enseigne_magasin, adresse_magasin, prix_ht, prix_ttc, date_achat, fichier) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', donnees.values())
+		cursor.execute('INSERT INTO factures (nom_acheteur, prenom_acheteur, adresse_acheteur, enseigne_magasin, adresse_magasin, prix_ht, prix_ttc, date_achat, fichier) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', donnees)
 		self.connexion.commit()
 		cursor.close()
 

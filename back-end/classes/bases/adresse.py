@@ -1,6 +1,6 @@
 class Adresse:
 
-	def __init__(self, numero_rue: int, nom_rue: str, code_postal: int, ville: str, region: str, pays: str):
+	def __init__(self, numero_rue: int, nom_rue: str, code_postal: int, ville: str, region: str, pays: str, id: int = -1):
 		"""
 		TODO docstring
 		:param numero_rue:
@@ -16,12 +16,17 @@ class Adresse:
 		self.ville = ville
 		self.region = region
 		self.pays = pays
+		self.id = id
+
 
 	def __str__(self):
 		return f"{self.avoir_donnees()}"
 
 	def __eq__(self, other):
-		return (self.nom_rue.lower() == other.nom_rue.lower()) and (self.numero_rue == other.numero_rue) and (self.ville == other.ville) and (self.code_postal == self.code_postal)
+		return (self.nom_rue.lower() == other.nom_rue.lower()) and (self.numero_rue == other.numero_rue) and (self.ville.lower() == other.ville.lower()) and (self.code_postal == self.code_postal)
+
+	def avoir_identifiant(self):
+		return self.id
 
 	def avoir_donnees(self):
 		return {"numero_rue": self.numero_rue, "adresse": self.nom_rue, "code_postal": self.code_postal,

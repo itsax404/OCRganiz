@@ -19,7 +19,7 @@ class Facture:
 		:param fichier:
 		"""
 		self.acheteur = acheteur
-		self.adresse = adresse
+		self.adresse_acheteur = adresse
 		self.enseigne = enseigne
 		self.prix_ht = prix_ht
 		self.prix_ttc = prix_ttc
@@ -30,7 +30,7 @@ class Facture:
 	def avoir_donnees(self):
 		return {
 			"acheteur": self.acheteur,
-			"adresse": self.adresse,
+			"adresse_acheteur": self.adresse_acheteur,
 			"enseigne": self.enseigne,
 			"prix_ht": self.prix_ht,
 			"prix_ttc": self.prix_ttc,
@@ -41,7 +41,7 @@ class Facture:
 	def avoir_donnees_bdd(self):
 		return {
 			"acheteur": self.acheteur.avoir_identifiant(),
-			"adresse": self.adresse.avoir_identifiant(),
+			"adresse_acheteur": self.adresse_acheteur.avoir_identifiant(),
 			"enseigne": self.enseigne.avoir_identifiant(),
 			"prix_ht": self.prix_ht,
 			"prix_ttc": self.prix_ttc,

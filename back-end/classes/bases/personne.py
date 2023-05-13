@@ -10,12 +10,17 @@ class Personne:
 		self.nom = nom
 		self.id = id
 
+	def __repr__(self):
+		return f"Classe Personne : Prénom = {self.prenom} Nom = {self.nom} Id = {self.id}"
+	def __eq__(self, other):
+		return ((self.nom == other.nom) and (self.prenom == other.prenom))
+
 	def avoir_donnees(self):
 		"""
 		TODO docstring
 		:return:
 		"""
-		return {"prenom": self.prenom, "nom": self.nom}
+		return {"nom": self.nom, "prenom": self.prenom}
     
 	def avoir_identifiant(self):
 		"""

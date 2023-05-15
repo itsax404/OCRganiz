@@ -27,6 +27,9 @@ class Facture:
 		self.fichier = fichier
 		self.id = id
 
+	def avoir_identifiant(self):
+		return self.id
+
 	def avoir_donnees(self):
 		return {
 			"acheteur": self.acheteur,

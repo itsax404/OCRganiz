@@ -2,6 +2,7 @@ import sqlite3
 import os
 from pathlib import Path
 from classes.bases.adresse import Adresse
+from classes.fiche_paie import Fiche_Paie
 from classes.bases.personne import Personne
 from classes.bases.entreprise import Entreprise
 from classes.facture import Facture
@@ -23,7 +24,8 @@ class Database:
 			'CREATE TABLE IF NOT EXISTS personnes (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT, prenom TEXT)',
 			'CREATE TABLE IF NOT EXISTS entreprises (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT, adresse INT, FOREIGN KEY (adresse) REFERENCES adresses(id))',
 			'CREATE TABLE IF NOT EXISTS factures (id INTEGER PRIMARY KEY AUTOINCREMENT, acheteur INT, adresse_acheteur INT, enseigne INT, prix_ht DOUBLE, prix_ttc DOUBLE, date_achat DATE, fichier LONGBLOB, FOREIGN KEY (acheteur) REFERENCES personnes(id), FOREIGN KEY (adresse_acheteur) REFERENCES adresses(id), FOREIGN KEY (enseigne) REFERENCES entreprises(id))',
-			'CREATE TABLE IF NOT EXISTS modeles (id INTEGER PRIMARY KEY AUTOINCREMENT,nom_modele TEXT ,rectangle_x1_1 FLOAT, rectangle_x1_2 FLOAT, rectangley1_1 FLOAT, rectangley1_2 FLOAT, utilisation_rectangle1 TEXT,rectangle_x2_1 FLOAT, rectangle_x2_2 FLOAT, rectangley2_1 FLOAT, rectangley2_2 FLOAT, utilisation_rectangle2 TEXT,rectangle_x3_1 FLOAT, rectangle_x3_2 FLOAT, rectangley3_1 FLOAT, rectangley3_2 FLOAT, utilisation_rectangle3 TEXT,rectangle_x4_1 FLOAT, rectangle_x4_2 FLOAT, rectangley4_1 FLOAT, rectangley4_2 FLOAT, utilisation_rectangle4 TEXT,rectangle_x5_1 FLOAT, rectangle_x5_2 FLOAT, rectangley5_1 FLOAT, rectangley5_2 FLOAT, utilisation_rectangle5 TEXT,rectangle_x6_1 FLOAT, rectangle_x6_2 FLOAT, rectangley6_1 FLOAT, rectangley6_2 FLOAT, utilisation_rectangle6 TEXT,rectangle_x7_1 FLOAT, rectangle_x7_2 FLOAT, rectangley7_1 FLOAT, rectangley7_2 FLOAT, utilisation_rectangle7 TEXT,rectangle_x8_1 FLOAT, rectangle_x8_2 FLOAT, rectangley8_1 FLOAT, rectangley8_2 FLOAT, utilisation_rectangle8 TEXT,rectangle_x9_1 FLOAT, rectangle_x9_2 FLOAT, rectangley9_1 FLOAT, rectangley9_2 FLOAT, utilisation_rectangle9 TEXT,rectangle_x10_1 FLOAT, rectangle_x10_2 FLOAT, rectangley10_1 FLOAT, rectangley10_2 FLOAT, utilisation_rectangle10 TEXT,rectangle_x11_1 FLOAT, rectangle_x11_2 FLOAT, rectangley11_1 FLOAT, rectangley11_2 FLOAT, utilisation_rectangle11 TEXT,rectangle_x12_1 FLOAT, rectangle_x12_2 FLOAT, rectangley12_1 FLOAT, rectangley12_2 FLOAT, utilisation_rectangle12 TEXT,rectangle_x13_1 FLOAT, rectangle_x13_2 FLOAT, rectangley13_1 FLOAT, rectangley13_2 FLOAT, utilisation_rectangle13 TEXT,rectangle_x14_1 FLOAT, rectangle_x14_2 FLOAT, rectangley14_1 FLOAT, rectangley14_2 FLOAT, utilisation_rectangle14 TEXT)'
+			'CREATE TABLE IF NOT EXISTS fiches_paie (id INTEGER PRIMARY KEY AUTOINCREMENT, entreprise INT, employe INT, date DATE, revenu_brut DOUBLE, revenu_net DOUBLE, fichier LONGBLOB, FOREIGN KEY (entreprise) REFERENCES entreprises(id), FOREIGN KEY (employe) REFERENCES personnes(id) )',
+			'CREATE TABLE IF NOT EXISTS modeles (id INTEGER PRIMARY KEY AUTOINCREMENT,nom_modele TEXT, type TEXT ,rectangle_x1_1 FLOAT, rectangle_x1_2 FLOAT, rectangley1_1 FLOAT, rectangley1_2 FLOAT, utilisation_rectangle1 TEXT,rectangle_x2_1 FLOAT, rectangle_x2_2 FLOAT, rectangley2_1 FLOAT, rectangley2_2 FLOAT, utilisation_rectangle2 TEXT,rectangle_x3_1 FLOAT, rectangle_x3_2 FLOAT, rectangley3_1 FLOAT, rectangley3_2 FLOAT, utilisation_rectangle3 TEXT,rectangle_x4_1 FLOAT, rectangle_x4_2 FLOAT, rectangley4_1 FLOAT, rectangley4_2 FLOAT, utilisation_rectangle4 TEXT,rectangle_x5_1 FLOAT, rectangle_x5_2 FLOAT, rectangley5_1 FLOAT, rectangley5_2 FLOAT, utilisation_rectangle5 TEXT,rectangle_x6_1 FLOAT, rectangle_x6_2 FLOAT, rectangley6_1 FLOAT, rectangley6_2 FLOAT, utilisation_rectangle6 TEXT,rectangle_x7_1 FLOAT, rectangle_x7_2 FLOAT, rectangley7_1 FLOAT, rectangley7_2 FLOAT, utilisation_rectangle7 TEXT,rectangle_x8_1 FLOAT, rectangle_x8_2 FLOAT, rectangley8_1 FLOAT, rectangley8_2 FLOAT, utilisation_rectangle8 TEXT,rectangle_x9_1 FLOAT, rectangle_x9_2 FLOAT, rectangley9_1 FLOAT, rectangley9_2 FLOAT, utilisation_rectangle9 TEXT,rectangle_x10_1 FLOAT, rectangle_x10_2 FLOAT, rectangley10_1 FLOAT, rectangley10_2 FLOAT, utilisation_rectangle10 TEXT,rectangle_x11_1 FLOAT, rectangle_x11_2 FLOAT, rectangley11_1 FLOAT, rectangley11_2 FLOAT, utilisation_rectangle11 TEXT,rectangle_x12_1 FLOAT, rectangle_x12_2 FLOAT, rectangley12_1 FLOAT, rectangley12_2 FLOAT, utilisation_rectangle12 TEXT,rectangle_x13_1 FLOAT, rectangle_x13_2 FLOAT, rectangley13_1 FLOAT, rectangley13_2 FLOAT, utilisation_rectangle13 TEXT,rectangle_x14_1 FLOAT, rectangle_x14_2 FLOAT, rectangley14_1 FLOAT, rectangley14_2 FLOAT, utilisation_rectangle14 TEXT)'
 		]
 		for instruction in instructions_sql:
 			cursor.execute(instruction)
@@ -100,6 +102,37 @@ class Database:
 				return personne_de_la_base
 		return None
 
+	def avoir_toutes_les_factures(self) -> list[Facture]:
+		"""
+		TODO docstring
+		"""
+		cursor = self.connexion.cursor()
+		cursor.execute("SELECT * FROM factures")
+		resultat = cursor.fetchall()
+		factures = list()
+		for facture in resultat:
+			acheteur = self.avoir_personne(facture[1])
+			adresse_acheteur = self.avoir_adresse(facture[2])
+			enseigne = self.avoir_entreprise(facture[3])
+			prix_ht = facture[4]
+			prix_ttc = facture[5]
+			date_achat = facture[6]
+			fichier = facture[7]
+			id = facutre[0]
+			facture_classe = Facture()
+
+	def facture_est_dans_la_base(self, facture: Facture):
+		"""
+		TODO docstring
+		:param facture:
+		:return:
+		"""
+		factures = self.avoir_toutes_les_factures()
+		for facture_de_la_base in factures:
+			if facture_de_la_base == facture:
+				return facture_de_la_base
+		return None
+
 	def ajouter_personne(self, personne: Personne):
 		"""
 		TODO docstring
@@ -163,12 +196,15 @@ class Database:
 		curseur.close()
 		return entreprise_classe
 
-	def avoir_toutes_les_entreprise(self):
+	def avoir_toutes_les_entreprises(self):
+		"""
+		TODO docstring
+		"""
 		curseur = self.connexion.cursor()
 		curseur.execute("SELECT * FROM entreprises")
 		resultat = curseur.fetchall()
 		entreprises = list()
-		for entreprise in entreprises:
+		for entreprise in resultat:
 			adresse_classe = self.avoir_adresse(entreprise[2])
 			entreprise_classe = Entreprise(entreprise[1], adresse_classe, entreprise[0])
 			entreprises.append(entreprise_classe)
@@ -176,7 +212,10 @@ class Database:
 		return entreprises
 
 	def entreprise_est_dans_la_base(self, entreprise: Entreprise):
-		entreprises = self.avoir_toutes_les_entreprise()
+		"""
+		TODO docstring
+		"""
+		entreprises = self.avoir_toutes_les_entreprises()
 		for entreprise_de_la_base in entreprises:
 			if entreprise_de_la_base == entreprise:
 				return entreprise_de_la_base
@@ -191,11 +230,12 @@ class Database:
 		donnees = facture.avoir_donnees()
 		donnees["adresse_acheteur"] = self.ajouter_adresse(donnees["adresse_acheteur"]).avoir_identifiant()
 		enseigne_bdd = self.entreprise_est_dans_la_base(donnees["enseigne"])
+		print(donnees["adresse_acheteur"])
 		if enseigne_bdd is None:
 			donnees["enseigne"] = self.ajouter_entreprise(donnees["enseigne"]).avoir_identifiant()
 		else:
 			if donnees["enseigne"].avoir_identifiant() == -1:
-				donnees["enseigne"] = enseigne_bdd
+				donnees["enseigne"] = enseigne_bdd.avoir_identifiant()
 		personne_bdd = self.personne_est_dans_la_base(donnees["acheteur"])
 		if personne_bdd is None:
 			donnees["acheteur"] = self.ajouter_personne(donnees["acheteur"]).avoir_identifiant()
@@ -205,6 +245,32 @@ class Database:
 		cursor = self.connexion.cursor()
 		cursor.execute(
 			'INSERT INTO factures (acheteur, adresse_acheteur, enseigne, prix_ht, prix_ttc, date_achat, fichier) VALUES (?, ?, ?, ?, ?, ?, ?)',
+			tuple(donnees.values()))
+		self.connexion.commit()
+		cursor.close()
+
+	def ajouter_fiche_paie(self, fiche_paie: Fiche_Paie):
+		"""
+		TODO docstring
+		:param fiche_paie:
+		:return:
+		"""
+		donnees = fiche_paie.avoir_donnees()
+		entreprise_bdd = self.entreprise_est_dans_la_base(donnees["entreprise"])
+		if entreprise_bdd is None:
+			donnees["entreprise"] = self.ajouter_entreprise(donnees["entreprise"]).avoir_identifiant()
+		else:
+			if donnees["entreprise"].avoir_identifiant() == -1:
+				donnees["entreprise"] = entreprise_bdd.avoir_identifiant()
+		personne_bdd = self.personne_est_dans_la_base(donnees["employé"])
+		if personne_bdd is None:
+			donnees["employé"] = self.ajouter_personne(donnees["employé"]).avoir_identifiant()
+		else:
+			if donnees["employé"].avoir_identifiant() == -1:
+				donnees["employé"] = personne_bdd.avoir_identifiant()
+		cursor = self.connexion.cursor()
+		cursor.execute(
+			'INSERT INTO fiches_paie (entreprise, employe, date, revenu_brut, revenu_net, fichier) VALUES (?, ?, ?, ?, ?, ?)',
 			tuple(donnees.values()))
 		self.connexion.commit()
 		cursor.close()

@@ -40,6 +40,12 @@ class Facture:
 			"date_achat": self.date_achat,
 			"fichier": self.fichier
 		}
+
+	def __eq__(self, other: object) -> bool:
+		"""
+		TODO docstring 
+		"""
+		return (self.acheteur == other.acheteur) and (self.adresse_acheteur == other.adresse_acheteur) and (self.enseigne == other.enseigne) and (self.prix_ht == other.prix_ht) and (self.prix_ttc == other.prix_ttc) and (self.date_achat == other.date_achat) and (self.fichier == other.fichier)
 	
 	def avoir_donnees_bdd(self):
 		return {

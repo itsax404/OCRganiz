@@ -15,5 +15,8 @@ class Entreprise:
 	def avoir_identifiant(self):
 		return self.id
 
+	def avoir_adresse(self):
+		returns self.adresse
+
 	def avoir_nom(self):
 		return self.nom

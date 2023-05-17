@@ -39,9 +39,8 @@ class Database:
 		:param adresse:
 		:return:
 		"""
-		adresse_bdd = self.adresse_est_dans_la_base(adresse)
-		if adresse_bdd is not None:
-			return adresse_bdd
+		if self.est_dans_la_base_adresse(adresse.id):
+			return self.avoir_adresse(adresse.id)
 		cursor = self.connexion.cursor()
 		cursor.execute('INSERT INTO adresses (numero, rue, code_postal, ville, region, pays) VALUES (?, ?, ?, ?, ?, ?)',
 		               tuple(adresse.avoir_donnees().values()))
@@ -64,7 +63,7 @@ class Database:
 		cursor.close()
 		return Adresse(resultat[1], resultat[2], resultat[3], resultat[4], resultat[5], resultat[6])
 
-	def adresse_est_dans_la_base_id(self, id: int) -> bool:
+	def est_dans_la_base_adresse(self, id: int) -> bool:
 		"""
 		TODO docstring
 		"""
@@ -74,17 +73,16 @@ class Database:
 		cursor.close()
 		return resultat is not None
 
-	def adresse_est_dans_la_base(self, adresse: Adresse):
+	def avoir_identifiant_adresse(self, adresse: Adresse) -> int:
 		"""
 		TODO docstring
-		:param adresse:
-		:return:
 		"""
 		adresses = self.avoir_toutes_les_adresses()
 		for adresse_de_la_base in adresses:
 			if adresse_de_la_base == adresse:
-				return adresse_de_la_base
+				return adresse_de_la_base.avoir_identifiant()
 		return None
+			
 
 	def avoir_toutes_les_adresses(self):
 		"""
@@ -101,82 +99,80 @@ class Database:
 		cursor.close()
 		return adresses
 
-	def personne_est_dans_la_base(self, personne: Personne):
-		"""
-		TODO docstring
-		:param personne:
-		:return:
-		"""
-		personnes = self.avoir_toutes_les_personnes()
-		for personne_de_la_base in personnes:
-			if personne_de_la_base == personne:
-				return personne_de_la_base
-		return None
-
-	def avoir_toutes_les_factures(self) -> list[Facture]:
+	def modifier_adresse(self, id: int, nouvelle_adresse: Adresse) -> Adresse:
 		"""
 		TODO docstring
 		"""
+		if not self.est_dans_la_base_adresse(id):
+			return None
 		cursor = self.connexion.cursor()
-		cursor.execute("SELECT * FROM factures")
-		resultat = cursor.fetchall()
-		factures = list()
-		for facture in resultat:
-			acheteur = self.avoir_personne(facture[1])
-			adresse_acheteur = self.avoir_adresse(facture[2])
-			enseigne = self.avoir_entreprise(facture[3])
-			prix_ht = facture[4]
-			prix_ttc = facture[5]
-			date_achat = facture[6]
-			fichier = facture[7]
-			id = facture[0]
-			facture_classe = Facture(acheteur, adresse_acheteur, enseigne, prix_ht, prix_ttc, date_achat, fichier, id)
-			factures.append(facture_classe)
-		return factures
+		cursor.execute("UPDATE adresses SET numero = ?, rue = ?, code_postal = ?, ville = ?, region = ?, pays = ? WHERE id = ?", tuple(nouvelle_adresse.avoir_donnees().values()) + (id,))
+		self.connexion.commit()
+		cursor.close()
+		return self.avoir_adresse(id)
 
-	def facture_est_dans_la_base(self, facture: Facture):
+
+	def supprimer_adresse(self, id: int) -> None:
 		"""
 		TODO docstring
-		:param facture:
-		:return:
 		"""
-		factures = self.avoir_toutes_les_factures()
-		for facture_de_la_base in factures:
-			if facture_de_la_base == facture:
-				return facture_de_la_base
-		return None
+		if not self.est_dans_la_base_adresse(id):
+			return None
+		cursor = self.connexion.cursor()
+		cursor.execute("DELETE FROM adresses WHERE id = ?", (id,))
+		self.connexion.commit()
+		cursor.close()
+
+# <============ PARTIE PERSONNE ============>
 
 	def ajouter_personne(self, personne: Personne):
 		"""
 		TODO docstring
-		:param personne:
 		:param adresse:
 		:return:
 		"""
-		personne_bdd = self.personne_est_dans_la_base(personne)
-		if personne_bdd is not None:
-			return personne_bdd
+		if self.est_dans_la_base_personne(personne.avoir_identifiant()):
+			return self.avoir_personne(personne.avoir_identifiant())
 		cursor = self.connexion.cursor()
-		donnees = personne.avoir_donnees()
-		cursor.execute('INSERT INTO personnes (nom, prenom) VALUES (?, ?)', tuple(personne.avoir_donnees().values()))
-		personne_classe = Personne(donnees["nom"], donnees["prenom"], cursor.lastrowid)
+		cursor.execute('INSERT INTO personnes (nom, prenom) VALUES (?, ?, ?, ?)',tuple(personne.avoir_donnees().values()))
 		self.connexion.commit()
+		donnees = personne.avoir_donnees()
+		nouvelle_personne = Personne(donnees["nom"], donnees["prenom"], cursor.lastrowid)
 		cursor.close()
-		return personne_classe
+		return nouvelle_personne
 
-	def avoir_personne(self, id: int):
+	def avoir_adresse(self, id: int):
 		"""
 		TODO docstring
 		:param id:
 		:return:
 		"""
 		cursor = self.connexion.cursor()
+		cursor.execute('SELECT * FROM adresses WHERE id = ?', (id,))
+		resultat = cursor.fetchone()
+		cursor.close()
+		return Adresse(resultat[1], resultat[2], resultat[3], resultat[4], resultat[5], resultat[6])
+
+	def est_dans_la_base_personne(self, id: int) -> bool:
+		"""
+		TODO docstring
+		"""
+		cursor = self.connexion.cursor()
 		cursor.execute('SELECT * FROM personnes WHERE id = ?', (id,))
 		resultat = cursor.fetchone()
-		if resultat is None:
-			return None
 		cursor.close()
-		return Personne(resultat[1], resultat[2], resultat[0])
+		return resultat is not None
+
+	def avoir_identifiant_personne(self, personne: Personne) -> int:
+		"""
+		TODO docstring
+		"""
+		personnes = self.avoir_toutes_les_personnes()
+		for personne_de_la_base in personnes:
+			if personne_de_la_base == personne:
+				return personne_de_la_base.avoir_identifiant()
+		return None
+			
 
 	def avoir_toutes_les_personnes(self):
 		"""
@@ -188,19 +184,43 @@ class Database:
 		resultat = cursor.fetchall()
 		personnes = []
 		for personne in resultat:
-			personne_classe = Personne(personne[1], personne[2], personne[0])
-			personnes.append(personne_classe)
+			personnes.append(Personne(personne[1], personne[2], personne[0])]))
 		cursor.close()
 		return personnes
+
+	def modifier_personne(self, id: int, nouvelle_personne: Personne) -> Personne:
+		"""
+		TODO docstring
+		"""
+		if not self.est_dans_la_base_personne(id):
+			return None
+		cursor = self.connexion.cursor()
+		cursor.execute("UPDATE personnes SET nom = ?, prenom = ? WHERE id = ?", tuple(nouvelle_personne.avoir_donnees().values()) + (id,))
+		self.connexion.commit()
+		cursor.close()
+		return self.avoir_personne(id)
+
+
+	def supprimer_personne(self, id: int) -> None:
+		"""
+		TODO docstring
+		"""
+		if not self.est_dans_la_base_personne(id):
+			return None
+		cursor = self.connexion.cursor()
+		cursor.execute("DELETE FROM personnes WHERE id = ?", (id,))
+		self.connexion.commit()
+		cursor.close()
+
+# <============ PARTIE ENTREPRISE ============>
 
 	def ajouter_entreprise(self, entreprise: Entreprise):
 		"""
 		TODO docstring
 		"""
 		curseur = self.connexion.cursor()
-		entreprise_bdd = self.entreprise_est_dans_la_base(entreprise)
-		if entreprise_bdd is not None:
-			return entreprise_bdd
+		if self.est_dans_la_base_entreprise(entreprise.avoir_identifiant()):
+			return self.avoir_entreprise(entreprise.avoir_identifiant())
 		adresse_entreprise = entreprise.adresse
 		adresse_bdd = self.ajouter_adresse(adresse_entreprise)
 		curseur.execute("INSERT INTO entreprises (nom, adresse) VALUES (?, ?)",
@@ -220,6 +240,16 @@ class Database:
 		adresse = self.avoir_adresse(resultat[2])
 		return Entreprise(resultat[1], adresse, resultat[0])
 
+	def avoir_identifiant_entreprise(self, entreprise: Entreprise) -> int:
+		"""
+		TODO docstring
+		"""
+		entreprises = self.avoir_toutes_les_entreprises()
+		for entreprise_de_la_base in entreprises:
+			if entreprise_de_la_base == entreprise:
+				return entreprise_de_la_base.avoir_identifiant()
+		return None
+
 	def avoir_toutes_les_entreprises(self):
 		"""
 		TODO docstring
@@ -235,16 +265,42 @@ class Database:
 		curseur.close()
 		return entreprises
 
-	def entreprise_est_dans_la_base(self, entreprise: Entreprise):
+	def modifier_entreprise(self, id: int, nouvelle_entreprise: Entreprise) -> Entreprise:
 		"""
 		TODO docstring
 		"""
-		entreprises = self.avoir_toutes_les_entreprises()
-		for entreprise_de_la_base in entreprises:
-			if entreprise_de_la_base == entreprise:
-				return entreprise_de_la_base
-		return None
+		if not self.est_dans_la_base_entreprise(id):
+			return None
+		nouvelle_adresse = self.ajouter_adresse(nouvelle_entreprise.avoir_adresse())
+		curseur = self.connexion.cursor()
+		curseur.execute("UPDATE entreprises SET nom = ?, adresse = ? WHERE id = ?", (nouvelle_entreprise.avoir_nom, nouvelle_adresse.avoir_identifiant(), id))
+		self.connexion.commit()
+		curseur.close()
+		return self.avoir_entreprise(id)
 
+	def supprimer_entreprise(self, id: int) -> None:
+		"""
+		TODO docstring
+		"""
+		curseur = self.connexion.cursor()
+		if not self.est_dans_la_base_entreprise(id):
+			return None
+		curseur.execute("DELETE FROM entreprises WHERE id = ?", (id,))
+		self.connexion.commit()
+		curseur.close()
+
+
+	def est_dans_la_base_entreprise(self, id: int) -> bool:
+		"""
+		TODO docstring
+		"""
+		curseur = self.connexion.cursor()
+		curseur.execute("SELECT * FROM entreprises WHERE id = ?", (id,))
+		resultat = curseur.fetchone()
+		curseur.close()
+		return resultat is not None
+# <============ PARTIE FACTURE ============>
+	
 	def ajouter_facture(self, facture: Facture):
 		"""
 		TODO docstring
@@ -253,44 +309,137 @@ class Database:
 		"""
 		donnees = facture.avoir_donnees()
 		donnees["adresse_acheteur"] = self.ajouter_adresse(donnees["adresse_acheteur"]).avoir_identifiant()
-		enseigne_bdd = self.entreprise_est_dans_la_base(donnees["enseigne"])
-		print(donnees["adresse_acheteur"])
-		if enseigne_bdd is None:
-			donnees["enseigne"] = self.ajouter_entreprise(donnees["enseigne"]).avoir_identifiant()
-		else:
-			if donnees["enseigne"].avoir_identifiant() == -1:
-				donnees["enseigne"] = enseigne_bdd.avoir_identifiant()
-		personne_bdd = self.personne_est_dans_la_base(donnees["acheteur"])
-		if personne_bdd is None:
-			donnees["acheteur"] = self.ajouter_personne(donnees["acheteur"]).avoir_identifiant()
-		else:
-			if donnees["acheteur"].avoir_identifiant() == -1:
-				donnees["acheteur"] = personne_bdd.avoir_identifiant()
+		donnees["enseigne"] = self.ajouter_entreprise(donnees["enseigne"]).avoir_identifiant()
+		donnees["acheteur"] = self.ajouter_personne(donnees["acheteur"]).avoir_identifiant()
 		cursor = self.connexion.cursor()
 		cursor.execute(
 			'INSERT INTO factures (acheteur, adresse_acheteur, enseigne, prix_ht, prix_ttc, date_achat, fichier) VALUES (?, ?, ?, ?, ?, ?, ?)',
 			tuple(donnees.values()))
 		self.connexion.commit()
 		cursor.close()
+	
+	def avoir_facture(self, id: int) -> Facture:
+		"""
+		TODO docstring
+		"""
+		cursor = self.connexion.cursor()
+		cursor.execute("SELECT * FROM factures WHERE id = ?", (id,))
+		resultat = cursor.fetchone()
+		if resultat is None:
+			return None
+		acheteur = self.avoir_personne(resultat[1])
+		adresse_acheteur = self.avoir_adresse(resultat[2])
+		enseigne = self.avoir_entreprise(resultat[3])
+		return Facture(acheteur, adresse_acheteur, enseigne, resultat[4], resultat[5], resultat[6], resultat[7], resultat[0])
 
-	def supprimer_fiche_paie(self, fiche_paie: Fiche_Paie):
-		if self.fiche_paie_est_dans_la_base(fiche_paie) is not None:
-			cursor = self.connexion.cursor()
-			cursor.execute("DELETE FROM fiches_de_paie WHERE id = ?", (fiche_paie.avoir_identifiant(),))
-			self.connexion.commit()
-			cursor.close()
-		else:
-			raise Exception("La fiche de paie n'est pas dans la base de données")
+	def avoir_identifiant_facture(self, facture: Facture) -> int:
+		"""
+		TODO docstring
+		"""
+		factures = self.avoir_toutes_les_factures()
+		for facture_de_la_base in factures:
+			if facture_de_la_base == facture:
+				return facture_de_la_base.avoir_identifiant()
+		return None
+
+
+	def avoir_toutes_les_factures(self) -> list:
+		"""
+		TODO docstring
+		"""
+		cursor = self.connexion.cursor()
+		cursor.execute("SELECT * FROM factures")
+		resultat = cursor.fetchall()
+		factures = list()
+		for facture in resultat:
+			acheteur = self.avoir_personne(facture[1])
+			adresse_acheteur = self.avoir_adresse(facture[2])
+			enseigne = self.avoir_entreprise(facture[3])
+			facture_classe = Facture(acheteur, adresse_acheteur, enseigne, facture[4], facture[5], facture[6], facture[7], facture[0])
+			factures.append(facture_classe)
+		cursor.close()
+		return factures
+
+	def modifier_facture(self, id: int, nouvelle_facture: Facture) -> Facture:
+		"""
+		TODO docstring
+		"""
+		if not self.est_dans_la_base_facture(id):
+			return None
+		nouvelle_adresse_acheteur = self.ajouter_adresse(nouvelle_facture.avoir_adresse_acheteur())
+		nouvelle_enseigne = self.ajouter_entreprise(nouvelle_facture.avoir_enseigne())
+		nouvel_acheteur = self.ajouter_personne(nouvelle_facture.avoir_acheteur())
+		cursor = self.connexion.cursor()
+		cursor.execute("UPDATE factures SET acheteur = ?, adresse_acheteur = ?, enseigne = ?, prix_ht = ?, prix_ttc = ?, date_achat = ?, fichier = ? WHERE id = ?", (nouvel_acheteur.avoir_identifiant(), nouvelle_adresse_acheteur.avoir_identifiant(), nouvelle_enseigne.avoir_identifiant(), nouvelle_facture.avoir_prix_ht(), nouvelle_facture.avoir_prix_ttc(), nouvelle_facture.avoir_date_achat(), nouvelle_facture.avoir_fichier(), id))
+		self.connexion.commit()
+		cursor.close()
+		return self.avoir_facture(id)
 	
-	def supprimer_facture(self, facture: Facture):
-		if self.facture_est_dans_la_base(facture) is not None:
-			cursor = self.connexion.cursor()
-			cursor.execute("DELETE FROM factures WHERE id = ?", (facture.avoir_identifiant(),))
-			self.connexion.commit()
-			cursor.close()
-		else:
-			raise Exception("La facture n'est pas dans la base de données")
-	
+	def supprimer_facture(self, id: int) -> None:
+		"""
+		TODO docstring
+		"""
+		if not self.est_dans_la_base_facture(id):
+			return None
+
+		cursor = self.connexion.cursor()
+		cursor.execute("DELETE FROM factures WHERE id = ?", (id,))
+		self.connexion.commit()
+		cursor.close()
+
+
+	def est_dans_la_base_facture(self, id: int) -> bool:
+		"""
+		TODO docstring
+		"""
+		cursor = self.connexion.cursor()
+		cursor.execute("SELECT * FROM factures WHERE id = ?", (id,))
+		resultat = cursor.fetchone()
+		cursor.close()
+		return resultat is not None
+
+# <============ PARTIE FICHE DE PAIE ============>
+
+	def ajouter_fiche_paie(self, fiche_paie: Fiche_Paie):
+		"""
+		TODO docstring
+		:param fiche_paie:
+		:return:
+		"""
+		donnees = fiche_paie.avoir_donnees()
+		entreprise_bdd = self.ajouter_entreprise(donnees["entreprise"])
+		personne_bdd = self.ajouter_personne(donnees["employé"])
+		cursor = self.connexion.cursor()
+		cursor.execute(
+			'INSERT INTO fiches_paie (entreprise, employe, date, revenu_brut, revenu_net, fichier) VALUES (?, ?, ?, ?, ?, ?)',
+			tuple(donnees.values()))
+		self.connexion.commit()
+		cursor.close()
+
+	def avoir_fiche_paie(self, id: int) -> Fiche_Paie:
+		"""
+		TODO docstring
+		"""
+		cursor = self.connexion.cursor()
+		cursor.execute("SELECT * FROM fiches_paie WHERE id = ?", (id,))
+		resultat = cursor.fetchone()
+		cursor.close()
+		if resultat is None:
+			return None
+		entreprise = self.avoir_entreprise(resultat[1])
+		employe = self.avoir_personne(resultat[2])
+		return Fiche_Paie(entreprise, employe, resultat[3], resultat[4], resultat[5], resultat[6], resultat[0])
+
+	def avoir_identifiant_fiche_paie(self, fiche_paie: Fiche_Paie) -> int:
+		"""
+		TODO docstring
+		"""
+		fiches_paie = self.avoir_toutes_les_fiches_de_paie()
+		for fiche_paie_de_la_base in fiches_paie:
+			if fiche_paie_de_la_base == fiche_paie:
+				return fiche_paie_de_la_base.avoir_identifiant()
+		return None
+
 	def avoir_toutes_les_fiches_de_paie(self):
 		"""
 		TODO docstring
@@ -312,38 +461,40 @@ class Database:
 		curseur.close()
 		return fiches_paie
 
-	def fiche_paie_est_dans_la_base(self, fiche_paie: Fiche_Paie):
+	def modifier_fiche_paie(self, id: int, nouvelle_fiche_paie: Fiche_Paie) -> Fiche_Paie:
 		"""
 		TODO docstring
 		"""
-		fiches_paie = self.avoir_toutes_les_fiches_de_paie()
-		for fiche_paie_de_la_base in fiches_paie:
-			if fiche_paie_de_la_base == fiche_paie:
-				return fiche_paie_de_la_base
-		return None			
-
-	def ajouter_fiche_paie(self, fiche_paie: Fiche_Paie):
-		"""
-		TODO docstring
-		:param fiche_paie:
-		:return:
-		"""
-		donnees = fiche_paie.avoir_donnees()
-		entreprise_bdd = self.entreprise_est_dans_la_base(donnees["entreprise"])
-		if entreprise_bdd is None:
-			donnees["entreprise"] = self.ajouter_entreprise(donnees["entreprise"]).avoir_identifiant()
-		else:
-			if donnees["entreprise"].avoir_identifiant() == -1:
-				donnees["entreprise"] = entreprise_bdd.avoir_identifiant()
-		personne_bdd = self.personne_est_dans_la_base(donnees["employé"])
-		if personne_bdd is None:
-			donnees["employé"] = self.ajouter_personne(donnees["employé"]).avoir_identifiant()
-		else:
-			if donnees["employé"].avoir_identifiant() == -1:
-				donnees["employé"] = personne_bdd.avoir_identifiant()
+		if not self.est_dans_la_base_fiche_paie(id):
+			return None
+		donnees = nouvelle_fiche_paie.avoir_donnees()
+		entreprise_bdd = self.modifier_entreprise(donnees["entreprise"])
+		personne_bdd = self.modifier_personne(donnees["employé"])
 		cursor = self.connexion.cursor()
 		cursor.execute(
-			'INSERT INTO fiches_paie (entreprise, employe, date, revenu_brut, revenu_net, fichier) VALUES (?, ?, ?, ?, ?, ?)',
+			'UPDATE fiches_paie SET entreprise = ?, employe = ?, date = ?, revenu_brut = ?, revenu_net = ?, fichier = ? WHERE id = ?',
 			tuple(donnees.values()))
 		self.connexion.commit()
 		cursor.close()
+		return self.avoir_fiche_paie(id)
+
+	def supprimer_fiche_paie(self, id: int) -> None:
+		"""
+		TODO docstring
+		"""
+		if not self.est_dans_la_base_fiche_paie(id):
+			return None
+		cursor = self.connexion.cursor()
+		cursor.execute("DELETE FROM fiches_paie WHERE id = ?", (id,))
+		self.connexion.commit()
+		cursor.close()
+		
+	def est_dans_la_base_fiche_paie(self, fiche_paie: Fiche_Paie):
+		"""
+		TODO docstring
+		"""
+		cursor = self.connexion.cursor()
+		cursor.execute("SELECT * FROM fiches_paie WHERE id = ?", (fiche_paie.avoir_identifiant(),))
+		resultat = cursor.fetchone()
+		cursor.close()
+		return resultat is not None

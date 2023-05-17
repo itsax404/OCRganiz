@@ -32,7 +32,7 @@ class Liste_interface (tk.Frame):
         self.tv.column(2, width=575)
         self.tv.column(3, width=50)
 
-        self.tv.heading(1, text='ID')
+        self.tv.heading(1, text='Type')
         self.tv.heading(2, text='Adresse du fichier')
         self.tv.heading(3, text='date')
 
@@ -70,8 +70,15 @@ class Liste_interface (tk.Frame):
 
     def visualisation(self):
         selected_item = self.tv.selection()[0]
-        self.tv.delete(selected_item)
+        v_fenetre = visualisation_pdf(self.master)
+        v_fenetre.affichage()
+class visualisation_pdf (tk.Toplevel):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.title("Visual pdf")
+        self.geometry("800x800")
+    def affichage(self):
+        label = tk.Label(master=self, text="thomas")
+        label.pack()
 
-def affichagetest(master):
-    label = tk.Label(master=master, text="classe test")
-    label.pack()
+

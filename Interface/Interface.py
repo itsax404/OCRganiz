@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import Menu, filedialog
 
-from Classe.Liste_interface import Liste_interface, affichagetest
+from Classe.Liste_interface import Liste_interface
 
 def Openfiles():
     filenames = filedialog.askopenfilenames(initialdir="/", title="Select a File", filetypes=(("pdf", "*.pdf"), ("all files","*.*")))

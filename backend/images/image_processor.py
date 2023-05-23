@@ -1,6 +1,6 @@
 from PIL import Image
 import pytesseract
-
+import fitz
 
 class Image_Processor:
 
@@ -8,9 +8,10 @@ class Image_Processor:
 		self.image = image
 		self.tesseract_dir = tesseract_dir
 
-	def crop(self, coordonnées: list[tuple[int]]):
+	def crop(self, coordonnées: tuple[int]):
 		image = Image.open(self.image)
-		boite = tuple((coordonnées[0][0], coordonnées[0][1], coordonnées[1][0], coordonnées[1][1]))
+		image = image.resize((int(image.width * 0.22), int(image.height * 0.22)))
+		boite = tuple((coordonnées[0], coordonnées[1], coordonnées[2], coordonnées[3]))
 		cropped_image = image.crop(boite)
 		return cropped_image
 

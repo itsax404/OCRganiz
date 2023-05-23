@@ -20,7 +20,7 @@ class Database:
 	def __creer_tables__(self):
 		cursor = self.connexion.cursor()
 		instructions_sql = [
-			'CREATE TABLE IF NOT EXISTS adresses (id INTEGER PRIMARY KEY AUTOINCREMENT, numero INT, rue TEXT, code_postal INT, ville TEXT, region TEXT, pays TEXT)',
+			'CREATE TABLE IF NOT EXISTS adresses (id INTEGER PRIMARY KEY AUTOINCREMENT, numero INT, rue TEXT, residence TEXT, appartement TEXT, batiment TEXT, code_postal INT, ville TEXT, pays TEXT)',
 			'CREATE TABLE IF NOT EXISTS personnes (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT, prenom TEXT)',
 			'CREATE TABLE IF NOT EXISTS entreprises (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT, adresse INT, FOREIGN KEY (adresse) REFERENCES adresses(id))',
 			'CREATE TABLE IF NOT EXISTS factures (id INTEGER PRIMARY KEY AUTOINCREMENT, acheteur INT, adresse_acheteur INT, enseigne INT, prix_ht DOUBLE, prix_ttc DOUBLE, date_achat DATE, fichier LONGBLOB, FOREIGN KEY (acheteur) REFERENCES personnes(id), FOREIGN KEY (adresse_acheteur) REFERENCES adresses(id), FOREIGN KEY (enseigne) REFERENCES entreprises(id))',
@@ -42,7 +42,7 @@ class Database:
 		if self.est_dans_la_base_adresse(adresse.id):
 			return self.avoir_adresse(adresse.id)
 		cursor = self.connexion.cursor()
-		cursor.execute('INSERT INTO adresses (numero, rue, code_postal, ville, region, pays) VALUES (?, ?, ?, ?, ?, ?)',
+		cursor.execute('INSERT INTO adresses (numero, rue, residence, appartement, batiment, code_postal, ville, pays) VALUES (?, ?, ?, ?, ?, ?,  ?, ?)',
 		               tuple(adresse.avoir_donnees().values()))
 		self.connexion.commit()
 		donnees = adresse.avoir_donnees()
@@ -61,7 +61,7 @@ class Database:
 		cursor.execute('SELECT * FROM adresses WHERE id = ?', (id,))
 		resultat = cursor.fetchone()
 		cursor.close()
-		return Adresse(resultat[1], resultat[2], resultat[3], resultat[4], resultat[5], resultat[6])
+		return Adresse(resultat[1], resultat[2], resultat[3], resultat[4], resultat[5], resultat[6], resultat[7],resultat[0])
 
 	def est_dans_la_base_adresse(self, id: int) -> bool:
 		"""
@@ -94,7 +94,7 @@ class Database:
 		resultat = cursor.fetchall()
 		adresses = []
 		for adresse in resultat:
-			adresse_classe = Adresse(adresse[1], adresse[2], adresse[3], adresse[4], adresse[5], adresse[6], adresse[0])
+			adresse_classe = Adresse(adresse[1], adresse[2], adresse[3], adresse[4], adresse[5], adresse[6], adresse[7], adresse[0])
 			adresses.append(adresse_classe)
 		cursor.close()
 		return adresses
@@ -106,7 +106,7 @@ class Database:
 		if not self.est_dans_la_base_adresse(id):
 			return None
 		cursor = self.connexion.cursor()
-		cursor.execute("UPDATE adresses SET numero = ?, rue = ?, code_postal = ?, ville = ?, region = ?, pays = ? WHERE id = ?", tuple(nouvelle_adresse.avoir_donnees().values()) + (id,))
+		cursor.execute("UPDATE adresses SET numero = ?, rue = ?,residence = ?, appartement = ?, batiment = ?, code_postal = ?, ville = ? , pays = ? WHERE id = ?", tuple(nouvelle_adresse.avoir_donnees().values()) + (id,))
 		self.connexion.commit()
 		cursor.close()
 		return self.avoir_adresse(id)
@@ -184,7 +184,7 @@ class Database:
 		resultat = cursor.fetchall()
 		personnes = []
 		for personne in resultat:
-			personnes.append(Personne(personne[1], personne[2], personne[0])]))
+			personnes.append(Personne(personne[1], personne[2], personne[0]))
 		cursor.close()
 		return personnes
 

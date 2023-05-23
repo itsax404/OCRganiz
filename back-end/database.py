@@ -20,7 +20,7 @@ class Database:
 	def __creer_tables__(self):
 		cursor = self.connexion.cursor()
 		instructions_sql = [
-			'CREATE TABLE IF NOT EXISTS adresses (id INTEGER PRIMARY KEY AUTOINCREMENT, numero INT, rue TEXT, residence TEXT, appartement TEXT, batiment TEXT, code_postal INT, ville TEXT, pays TEXT)',
+			'CREATE TABLE IF NOT EXISTS adresses (id INTEGER PRIMARY KEY AUTOINCREMENT, numero TEXT, rue TEXT,complement TEXT, boite_postale TEXT, code_postal INT, ville TEXT, pays TEXT)',
 			'CREATE TABLE IF NOT EXISTS personnes (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT, prenom TEXT)',
 			'CREATE TABLE IF NOT EXISTS entreprises (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT, adresse INT, FOREIGN KEY (adresse) REFERENCES adresses(id))',
 			'CREATE TABLE IF NOT EXISTS factures (id INTEGER PRIMARY KEY AUTOINCREMENT, acheteur INT, adresse_acheteur INT, enseigne INT, prix_ht DOUBLE, prix_ttc DOUBLE, date_achat DATE, fichier LONGBLOB, FOREIGN KEY (acheteur) REFERENCES personnes(id), FOREIGN KEY (adresse_acheteur) REFERENCES adresses(id), FOREIGN KEY (enseigne) REFERENCES entreprises(id))',
@@ -31,7 +31,8 @@ class Database:
 			cursor.execute(instruction)
 		self.connexion.commit()
 		cursor.close()
-# <============ PARTIE ADRESSE ============>
+
+	# <============ PARTIE ADRESSE ============>
 
 	def ajouter_adresse(self, adresse: Adresse):
 		"""
@@ -42,12 +43,14 @@ class Database:
 		if self.est_dans_la_base_adresse(adresse.id):
 			return self.avoir_adresse(adresse.id)
 		cursor = self.connexion.cursor()
-		cursor.execute('INSERT INTO adresses (numero, rue, residence, appartement, batiment, code_postal, ville, pays) VALUES (?, ?, ?, ?, ?, ?,  ?, ?)',
-		               tuple(adresse.avoir_donnees().values()))
+		cursor.execute(
+			'INSERT INTO adresses (numero, rue, complement, boite_postale, code_postal, ville, pays) VALUES (?, ?, ?, ?, ?, ?,  ?, ?)',
+			tuple(adresse.avoir_donnees().values()))
 		self.connexion.commit()
 		donnees = adresse.avoir_donnees()
-		nouvelle_adresse = Adresse(donnees["numero_rue"], donnees["adresse"], donnees["code_postal"], donnees["ville"],
-		                           donnees["region"], donnees["pays"], cursor.lastrowid)
+		nouvelle_adresse = Adresse(donnees["numero_rue"], donnees["adresse"], donnees["complement"],
+		                           donnees["boite_postale"], donnees["code_postal"], donnees["ville"], donnees["pays"],
+		                           cursor.lastrowid)
 		cursor.close()
 		return nouvelle_adresse
 
@@ -61,7 +64,7 @@ class Database:
 		cursor.execute('SELECT * FROM adresses WHERE id = ?', (id,))
 		resultat = cursor.fetchone()
 		cursor.close()
-		return Adresse(resultat[1], resultat[2], resultat[3], resultat[4], resultat[5], resultat[6], resultat[7],resultat[0])
+		return Adresse(resultat[1], resultat[2], resultat[3], resultat[4], resultat[5], resultat[6], resultat[0])
 
 	def est_dans_la_base_adresse(self, id: int) -> bool:
 		"""
@@ -82,7 +85,6 @@ class Database:
 			if adresse_de_la_base == adresse:
 				return adresse_de_la_base.avoir_identifiant()
 		return None
-			
 
 	def avoir_toutes_les_adresses(self):
 		"""
@@ -94,7 +96,7 @@ class Database:
 		resultat = cursor.fetchall()
 		adresses = []
 		for adresse in resultat:
-			adresse_classe = Adresse(adresse[1], adresse[2], adresse[3], adresse[4], adresse[5], adresse[6], adresse[7], adresse[0])
+			adresse_classe = Adresse(adresse[1], adresse[2], adresse[3], adresse[4], adresse[5], adresse[6], adresse[0])
 			adresses.append(adresse_classe)
 		cursor.close()
 		return adresses
@@ -106,11 +108,12 @@ class Database:
 		if not self.est_dans_la_base_adresse(id):
 			return None
 		cursor = self.connexion.cursor()
-		cursor.execute("UPDATE adresses SET numero = ?, rue = ?,residence = ?, appartement = ?, batiment = ?, code_postal = ?, ville = ? , pays = ? WHERE id = ?", tuple(nouvelle_adresse.avoir_donnees().values()) + (id,))
+		cursor.execute(
+			"UPDATE adresses SET numero = ?, rue = ?, complement = ?, boite_postale = ?, code_postal = ?, ville = ? , pays = ? WHERE id = ?",
+			tuple(nouvelle_adresse.avoir_donnees().values()) + (id,))
 		self.connexion.commit()
 		cursor.close()
 		return self.avoir_adresse(id)
-
 
 	def supprimer_adresse(self, id: int) -> None:
 		"""
@@ -123,7 +126,7 @@ class Database:
 		self.connexion.commit()
 		cursor.close()
 
-# <============ PARTIE PERSONNE ============>
+	# <============ PARTIE PERSONNE ============>
 
 	def ajouter_personne(self, personne: Personne):
 		"""
@@ -134,7 +137,8 @@ class Database:
 		if self.est_dans_la_base_personne(personne.avoir_identifiant()):
 			return self.avoir_personne(personne.avoir_identifiant())
 		cursor = self.connexion.cursor()
-		cursor.execute('INSERT INTO personnes (nom, prenom) VALUES (?, ?, ?, ?)',tuple(personne.avoir_donnees().values()))
+		cursor.execute('INSERT INTO personnes (nom, prenom) VALUES (?, ?, ?, ?)',
+						tuple(personne.avoir_donnees().values()))
 		self.connexion.commit()
 		donnees = personne.avoir_donnees()
 		nouvelle_personne = Personne(donnees["nom"], donnees["prenom"], cursor.lastrowid)
@@ -172,7 +176,6 @@ class Database:
 			if personne_de_la_base == personne:
 				return personne_de_la_base.avoir_identifiant()
 		return None
-			
 
 	def avoir_toutes_les_personnes(self):
 		"""
@@ -195,11 +198,11 @@ class Database:
 		if not self.est_dans_la_base_personne(id):
 			return None
 		cursor = self.connexion.cursor()
-		cursor.execute("UPDATE personnes SET nom = ?, prenom = ? WHERE id = ?", tuple(nouvelle_personne.avoir_donnees().values()) + (id,))
+		cursor.execute("UPDATE personnes SET nom = ?, prenom = ? WHERE id = ?",
+		               tuple(nouvelle_personne.avoir_donnees().values()) + (id,))
 		self.connexion.commit()
 		cursor.close()
 		return self.avoir_personne(id)
-
 
 	def supprimer_personne(self, id: int) -> None:
 		"""
@@ -212,7 +215,7 @@ class Database:
 		self.connexion.commit()
 		cursor.close()
 
-# <============ PARTIE ENTREPRISE ============>
+	# <============ PARTIE ENTREPRISE ============>
 
 	def ajouter_entreprise(self, entreprise: Entreprise):
 		"""
@@ -273,7 +276,8 @@ class Database:
 			return None
 		nouvelle_adresse = self.ajouter_adresse(nouvelle_entreprise.avoir_adresse())
 		curseur = self.connexion.cursor()
-		curseur.execute("UPDATE entreprises SET nom = ?, adresse = ? WHERE id = ?", (nouvelle_entreprise.avoir_nom, nouvelle_adresse.avoir_identifiant(), id))
+		curseur.execute("UPDATE entreprises SET nom = ?, adresse = ? WHERE id = ?",
+		                (nouvelle_entreprise.avoir_nom, nouvelle_adresse.avoir_identifiant(), id))
 		self.connexion.commit()
 		curseur.close()
 		return self.avoir_entreprise(id)
@@ -289,7 +293,6 @@ class Database:
 		self.connexion.commit()
 		curseur.close()
 
-
 	def est_dans_la_base_entreprise(self, id: int) -> bool:
 		"""
 		TODO docstring
@@ -299,8 +302,9 @@ class Database:
 		resultat = curseur.fetchone()
 		curseur.close()
 		return resultat is not None
-# <============ PARTIE FACTURE ============>
-	
+
+	# <============ PARTIE FACTURE ============>
+
 	def ajouter_facture(self, facture: Facture):
 		"""
 		TODO docstring
@@ -317,7 +321,7 @@ class Database:
 			tuple(donnees.values()))
 		self.connexion.commit()
 		cursor.close()
-	
+
 	def avoir_facture(self, id: int) -> Facture:
 		"""
 		TODO docstring
@@ -330,7 +334,8 @@ class Database:
 		acheteur = self.avoir_personne(resultat[1])
 		adresse_acheteur = self.avoir_adresse(resultat[2])
 		enseigne = self.avoir_entreprise(resultat[3])
-		return Facture(acheteur, adresse_acheteur, enseigne, resultat[4], resultat[5], resultat[6], resultat[7], resultat[0])
+		return Facture(acheteur, adresse_acheteur, enseigne, resultat[4], resultat[5], resultat[6], resultat[7],
+		               resultat[0])
 
 	def avoir_identifiant_facture(self, facture: Facture) -> int:
 		"""
@@ -341,7 +346,6 @@ class Database:
 			if facture_de_la_base == facture:
 				return facture_de_la_base.avoir_identifiant()
 		return None
-
 
 	def avoir_toutes_les_factures(self) -> list:
 		"""
@@ -355,7 +359,8 @@ class Database:
 			acheteur = self.avoir_personne(facture[1])
 			adresse_acheteur = self.avoir_adresse(facture[2])
 			enseigne = self.avoir_entreprise(facture[3])
-			facture_classe = Facture(acheteur, adresse_acheteur, enseigne, facture[4], facture[5], facture[6], facture[7], facture[0])
+			facture_classe = Facture(acheteur, adresse_acheteur, enseigne, facture[4], facture[5], facture[6],
+			                         facture[7], facture[0])
 			factures.append(facture_classe)
 		cursor.close()
 		return factures
@@ -370,11 +375,15 @@ class Database:
 		nouvelle_enseigne = self.ajouter_entreprise(nouvelle_facture.avoir_enseigne())
 		nouvel_acheteur = self.ajouter_personne(nouvelle_facture.avoir_acheteur())
 		cursor = self.connexion.cursor()
-		cursor.execute("UPDATE factures SET acheteur = ?, adresse_acheteur = ?, enseigne = ?, prix_ht = ?, prix_ttc = ?, date_achat = ?, fichier = ? WHERE id = ?", (nouvel_acheteur.avoir_identifiant(), nouvelle_adresse_acheteur.avoir_identifiant(), nouvelle_enseigne.avoir_identifiant(), nouvelle_facture.avoir_prix_ht(), nouvelle_facture.avoir_prix_ttc(), nouvelle_facture.avoir_date_achat(), nouvelle_facture.avoir_fichier(), id))
+		cursor.execute(
+			"UPDATE factures SET acheteur = ?, adresse_acheteur = ?, enseigne = ?, prix_ht = ?, prix_ttc = ?, date_achat = ?, fichier = ? WHERE id = ?",
+			(nouvel_acheteur.avoir_identifiant(), nouvelle_adresse_acheteur.avoir_identifiant(),
+			 nouvelle_enseigne.avoir_identifiant(), nouvelle_facture.avoir_prix_ht(), nouvelle_facture.avoir_prix_ttc(),
+			 nouvelle_facture.avoir_date_achat(), nouvelle_facture.avoir_fichier(), id))
 		self.connexion.commit()
 		cursor.close()
 		return self.avoir_facture(id)
-	
+
 	def supprimer_facture(self, id: int) -> None:
 		"""
 		TODO docstring
@@ -387,7 +396,6 @@ class Database:
 		self.connexion.commit()
 		cursor.close()
 
-
 	def est_dans_la_base_facture(self, id: int) -> bool:
 		"""
 		TODO docstring
@@ -398,7 +406,7 @@ class Database:
 		cursor.close()
 		return resultat is not None
 
-# <============ PARTIE FICHE DE PAIE ============>
+	# <============ PARTIE FICHE DE PAIE ============>
 
 	def ajouter_fiche_paie(self, fiche_paie: Fiche_Paie):
 		"""
@@ -488,7 +496,7 @@ class Database:
 		cursor.execute("DELETE FROM fiches_paie WHERE id = ?", (id,))
 		self.connexion.commit()
 		cursor.close()
-		
+
 	def est_dans_la_base_fiche_paie(self, fiche_paie: Fiche_Paie):
 		"""
 		TODO docstring

@@ -1,79 +1,76 @@
-import os
 import tkinter as tk
+from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
-from tkinter import messagebox
 import fitz
+from backend.images.image_processor import Image_Processor
 
 
+class visualisation_pdf(tk.Toplevel):
+    def __init__(self, master, path):
+        super().__init__(master=None)
+        self.w, self.h = self.winfo_screenwidth(), self.winfo_screenheight()
+        self.title("Visual pdf")
+        self.geometry('%sx%s' % (self.w, self.h))
+        self.path = path
+        self.imgfiles = []
+        self.pdfimg(self.path)
 
-def get_mouse_pos(event):
-    global topy, topx
+        self.img = Image.open(self.imgfiles[0])
+        self.WIDTH, self.HEIGHT = self.img.width, self.img.height
+        self.img = self.img.resize((int(self.WIDTH * 0.22), int(self.HEIGHT * 0.22)))
+        self.img = ImageTk.PhotoImage(self.img)
+        self.topx, self.topy, self.botx, self.boty = 0, 0, 0, 0
+        self.rect_id = None
 
-    topx, topy = event.x, event.y
+        self.affichage()
 
-def update_sel_rect(event):
-    global rect_id
-    global topy, topx, botx, boty
+    def affichage(self):
+        labelframe = tk.LabelFrame(master=self, text="liste des fichiers")
+        labelframe.pack(side="left", fill=tk.Y, padx=10)
 
-    botx, boty = event.x, event.y
-    print(topx, topy, botx, boty)
-    canvas.coords(rect_id, topx, topy, botx, boty)  # Update selection rect.
+        label = tk.Label(labelframe, text="")
+        label.grid(row=0, column=0)
+        btn = tk.Button(labelframe, text="test", command=self.test)
+        btn.grid()
+        frame = tk.Frame(master=self, width=self.w, height=self.h)
+        frame.pack(side="left", fill=tk.Y, padx=10)
 
+        self.canvas = tk.Canvas(master=frame, width=self.WIDTH * 0.22, height=self.HEIGHT * 0.22,
+                                borderwidth=0, highlightthickness=0, scrollregion=(0, 0, 500, 500))
 
-def pdfimg():
-#    try:
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "factureEdF.pdf")
-# "        C:\Users\thoma\PycharmProjects\projet - programmation\test\factureEdF.pdf"
-    print(path)
-    doc = fitz.open(path)
-    pages = doc.pages()
-    images = [page.get_pixmap(dpi=300) for page in pages]
-    for img, i in zip(images, range(len(images))):
-        img.save(f'output{i}.png')
+        self.canvas.img = self.img
+        self.canvas.create_image(0, 0, image=self.img, anchor=tk.NW)
 
-#    except:
-#        Result = "NO pdf found"
-#        messagebox.showinfo("Result", Result)
+        self.rect_id = self.canvas.create_rectangle(self.topx, self.topy, self.topx, self.topy,
+                                               dash=(2, 2), fill='', outline='red')
 
-#    else:
-#        Result = "success"
-#        messagebox.showinfo("Result", Result)
+        self.canvas.bind('<Button-1>', self.get_mouse_posn)
+        self.canvas.bind('<B1-Motion>', self.update_sel_rect)
 
+    def pdfimg(self, path):
+        """
+        Convertion des pdf en img .png
+        :return:
+        permet de enregistrer chaque page du pdf en .png
+        """
+        doc = fitz.open(path)
+        pages = doc.pages()
+        images = [page.get_pixmap(dpi=300) for page in pages]
+        for img, i in zip(images, range(len(images))):
+            img.save(f'C:\\Users\\thoma\\PycharmProjects\\projet-programmation\\test\\output{i}.png')
+            self.imgfiles.append(f'C:\\Users\\thoma\\PycharmProjects\\projet-programmation\\test\\output{i}.png')
 
-path = "test\\output0.png"
-img = Image.open(path)
-#pdfimg()
-WIDTH, HEIGHT = img.width, img.height
-topx, topy, botx, boty = 0, 0, 0, 0
-rect_id = None
+    def test(self):
+        ip = Image_Processor("C:\\Users\\thoma\\PycharmProjects\\projet-programmation\\test\\output0.png", "C:\\Program Files\\Tesseract-OCR\\tesseract.exe")
+        image_cropped = ip.crop(tuple((self.topx * 4.54, self.topy * 4.54, self.botx * 4.54, self.boty * 4.54)))
+        height, weight = image_cropped.size
+        if not (height == 0 or weight == 0):
+            print(ip.ocr_cropped_image(image_cropped))
 
-window = tk.Tk()
-window.title("Select Area")
-w, h = window.winfo_screenwidth(), window.winfo_screenheight()
-window.geometry('%sx%s' % (w, h))
-window.configure(background='grey')
+    def get_mouse_posn(self, event):
+        self.topx, self.topy = event.x, event.y
 
-img = img.resize((int(WIDTH*0.2), int(HEIGHT*0.2)))
-img = ImageTk.PhotoImage(img)
-
-#img = ImageTk.PhotoImage(img)
-frame = tk.Frame(window, width=w, height=h)
-frame.grid(row=0, column=0)
-canvas = tk.Canvas(master=frame, width=WIDTH*0.2, height=HEIGHT*0.2,
-                   borderwidth=0, highlightthickness=0, scrollregion=(0, 0, 500, 500))
-
-canvas.img = img  # Keep reference in case this code is put into a function.
-canvas.create_image(0, 0, image=img, anchor=tk.NW)
-scrollbar = tk.Scrollbar(master=frame)
-scrollbar.grid(row=0, column=2)
-canvas.config(yscrollcommand=scrollbar.set)
-scrollbar.config(command=canvas.yview)
-canvas.grid(row=0, column=1)
-# Create selection rectangle (invisible since corner points are equal).
-rect_id = canvas.create_rectangle(topx, topy, topx, topy,
-                                  dash=(2,2), fill='', outline='red')
-
-canvas.bind('<Button-1>', get_mouse_pos)
-canvas.bind('<B1-Motion>', update_sel_rect)
-
-window.mainloop()
+    def update_sel_rect(self, event):
+        self.botx, self.boty = event.x, event.y
+        print(self.topx, self.topy, self.botx, self.boty)
+        self.canvas.coords(self.rect_id, self.topx, self.topy, self.botx, self.boty)

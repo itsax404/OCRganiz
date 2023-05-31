@@ -49,6 +49,8 @@ test/
 # *.iml
 # *.ipr
 
+test_image.py
+
 # CMake
 cmake-build-*/
 

@@ -66,7 +66,7 @@ img = ImageTk.PhotoImage(img)
 
 labelframe = tk.LabelFrame(window, text="liste des fichiers")
 labelframe.pack(side="left", fill=tk.Y, padx=10)
-label = tk.Label(labelframe, text="hollaaa")
+label = tk.Label(labelframe, text="")
 label.grid(row=0, column=0)
 btn = tk.Button(labelframe, text="test", command=test)
 btn.grid()
@@ -76,7 +76,7 @@ frame.pack(side="left", fill=tk.Y, padx=10)
 canvas = tk.Canvas(master=frame, width=WIDTH*0.22, height=HEIGHT*0.22,
                    borderwidth=0, highlightthickness=0, scrollregion=(0, 0, 500, 500))
 
-canvas.img = img  # Keep reference in case this code is put into a function.
+canvas.img = img
 canvas.create_image(0, 0, image=img, anchor=tk.NW)
 
 scrollbar = tk.Scrollbar(master=frame)

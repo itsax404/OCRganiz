@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, Menu, filedialog
-class Liste_interface (tk.Frame):
+from .PdFviewer import visualisation_pdf
+class Liste_interface_c (tk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.master = master
@@ -94,16 +95,8 @@ class Liste_interface (tk.Frame):
         data = list(self.tv.item(selected_item).get("values"))
         v_fenetre = visualisation_pdf(self.master, data[1])
         v_fenetre.affichage()
-class visualisation_pdf (tk.Toplevel):
-    def __init__(self, master, path):
-        super().__init__(master=None)
-        self.title("Visual pdf")
-        self.geometry("800x800")
-        self.path = path
 
-    def affichage(self):
-        label = tk.Label(master=self, text=self.path)
-        label.pack()
+
 
 
 class Menu_p (tk.Frame):

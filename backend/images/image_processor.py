@@ -1,6 +1,6 @@
 from PIL import Image
 import pytesseract
-import fitz
+
 
 class Image_Processor:
 
@@ -8,12 +8,14 @@ class Image_Processor:
 		self.image = image
 		self.tesseract_dir = tesseract_dir
 
-	def crop(self, coordonnées: tuple[int]):
+	def crop(self, coordonnées: tuple[int, int, int, int]) -> Image:
 		image = Image.open(self.image)
-		boite = tuple((coordonnées[0], coordonnées[1], coordonnées[2], coordonnées[3]))
-		cropped_image = image.crop(boite)
-		return cropped_image
+		return image.crop(coordonnées)
 
-	def ocr_cropped_image(self, image, lang="fra"):
+	def ocr_cropped_image(self, image: Image, lang: str = "fra") -> str:
 		pytesseract.pytesseract.tesseract_cmd = self.tesseract_dir
 		return pytesseract.image_to_string(image, lang=lang)
+
+	def crop_and_ocr(self, coordonnées: tuple[int, int, int, int], lang: str = "fra") -> str:
+		cropped_image = self.crop(coordonnées)
+		return self.ocr_cropped_image(cropped_image, lang=lang)

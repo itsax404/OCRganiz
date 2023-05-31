@@ -21,7 +21,7 @@ def update_sel_rect(event):
     canvas.coords(rect_id, topx, topy, botx, boty)  # Update selection rect.
 def test():
     ip = Image_Processor(".\\test\\output0.png", "C:\\Program Files\\Tesseract-OCR\\tesseract.exe")
-    image_cropped = ip.crop(tuple((topx, topy, botx, boty)))
+    image_cropped = ip.crop(tuple((topx*4.54, topy*4.54, botx*4.54, boty*4.54)))
     height, weight = image_cropped.size
     if not (height == 0 or weight == 0):
         print(ip.ocr_cropped_image(image_cropped))

@@ -10,7 +10,6 @@ class Image_Processor:
 
 	def crop(self, coordonnées: tuple[int]):
 		image = Image.open(self.image)
-		image = image.resize((int(image.width * 0.22), int(image.height * 0.22)))
 		boite = tuple((coordonnées[0], coordonnées[1], coordonnées[2], coordonnées[3]))
 		cropped_image = image.crop(boite)
 		return cropped_image

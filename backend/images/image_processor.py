@@ -26,4 +26,7 @@ class Image_Processor:
 
 	def detecte_adresse(self, coordonnées: tuple[int, int, int, int], lang: str = "fra") -> str:
 		texte_adresse = self.__crop_and_ocr__(coordonnées, lang=lang)
+		f = open(".\\text.txt", "w")
+		f.write(texte_adresse)
+		f.close()
 		print(texte_adresse)

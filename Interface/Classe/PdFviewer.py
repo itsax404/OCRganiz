@@ -16,30 +16,33 @@ class visualisation_pdf(tk.Toplevel):
         self.pdfimg(self.path)
 
         self.img = Image.open(self.imgfiles[0])
+        print(self.imgfiles[0])
         self.WIDTH, self.HEIGHT = self.img.width, self.img.height
-        self.img = self.img.resize((int(self.WIDTH * 0.22), int(self.HEIGHT * 0.22)))
-        self.img = ImageTk.PhotoImage(self.img)
+
         self.topx, self.topy, self.botx, self.boty = 0, 0, 0, 0
         self.rect_id = None
 
-        self.affichage()
 
     def affichage(self):
-        labelframe = tk.LabelFrame(master=self, text="liste des fichiers")
-        labelframe.pack(side="left", fill=tk.Y, padx=10)
+        self.labelframe = tk.LabelFrame(master=self, text="liste des fichiers")
+        self.labelframe.pack(side="left", fill=tk.Y, padx=10)
 
-        label = tk.Label(labelframe, text="")
-        label.grid(row=0, column=0)
-        btn = tk.Button(labelframe, text="test", command=self.test)
+        self.label = tk.Label(self.labelframe, text="")
+        self.label.grid(row=0, column=0)
+        btn = tk.Button(self.labelframe, text="test", command=self.test)
         btn.grid()
-        frame = tk.Frame(master=self, width=self.w, height=self.h)
-        frame.pack(side="left", fill=tk.Y, padx=10)
+        self.frame = tk.Frame(master=self, width=self.w, height=self.h)
+        self.frame.pack(side="left", fill=tk.Y, padx=10)
 
-        self.canvas = tk.Canvas(master=frame, width=self.WIDTH * 0.22, height=self.HEIGHT * 0.22,
+        self.canvas = tk.Canvas(master=self.frame, width=self.WIDTH * 0.22, height=self.HEIGHT * 0.22,
                                 borderwidth=0, highlightthickness=0, scrollregion=(0, 0, 500, 500))
+
+        self.img = self.img.resize((int(self.WIDTH * 0.22), int(self.HEIGHT * 0.22)))
+        self.img = ImageTk.PhotoImage(self.img)
 
         self.canvas.img = self.img
         self.canvas.create_image(0, 0, image=self.img, anchor=tk.NW)
+        self.canvas.pack()
 
         self.rect_id = self.canvas.create_rectangle(self.topx, self.topy, self.topx, self.topy,
                                                dash=(2, 2), fill='', outline='red')
@@ -62,10 +65,11 @@ class visualisation_pdf(tk.Toplevel):
 
     def test(self):
         ip = Image_Processor("C:\\Users\\thoma\\PycharmProjects\\projet-programmation\\test\\output0.png", "C:\\Program Files\\Tesseract-OCR\\tesseract.exe")
+        coordonnees = tuple((self.topx * 4.54, self.topy * 4.54, self.botx * 4.54, self.boty * 4.54))
         image_cropped = ip.crop(tuple((self.topx * 4.54, self.topy * 4.54, self.botx * 4.54, self.boty * 4.54)))
         height, weight = image_cropped.size
         if not (height == 0 or weight == 0):
-            print(ip.ocr_cropped_image(image_cropped))
+            print(ip.detecte_adresse(coordonnees))
 
     def get_mouse_posn(self, event):
         self.topx, self.topy = event.x, event.y

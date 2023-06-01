@@ -69,7 +69,7 @@ class visualisation_pdf(tk.Toplevel):
         image_cropped = ip.crop(tuple((self.topx * 4.54, self.topy * 4.54, self.botx * 4.54, self.boty * 4.54)))
         height, weight = image_cropped.size
         if not (height == 0 or weight == 0):
-            print(ip.detecte_adresse(coordonnees))
+            print(ip.__ocr_cropped_image__(coordonnees))
 
     def get_mouse_posn(self, event):
         self.topx, self.topy = event.x, event.y

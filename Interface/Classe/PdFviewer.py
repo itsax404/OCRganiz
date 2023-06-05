@@ -13,6 +13,7 @@ class Visualisation_pdf(tk.Toplevel):
         self.geometry('%sx%s' % (self.w, self.h))
         self.path = path
         self.imgfiles = []
+        self.imgscale = 0.22
         self.pdfimg(self.path)
         self.n_img = 0
 
@@ -38,7 +39,7 @@ class Visualisation_pdf(tk.Toplevel):
         self.canvas = tk.Canvas(master=self.frame, width=self.WIDTH * 0.22, height=self.HEIGHT * 0.22,
                                 borderwidth=0, highlightthickness=0, scrollregion=(0, 0, 500, 500))
 
-        self.img = self.img.resize((int(self.WIDTH * 0.22), int(self.HEIGHT * 0.22)))
+        self.img = self.img.resize((int(self.WIDTH * self.imgscale), int(self.HEIGHT * self.imgscale)))
         self.img = ImageTk.PhotoImage(self.img)
 
         self.canvas.img = self.img
@@ -62,6 +63,7 @@ class Visualisation_pdf(tk.Toplevel):
 
         self.canvas.bind('<Button-1>', self.get_mouse_posn)
         self.canvas.bind('<B1-Motion>', self.update_sel_rect)
+        self.canvas.bind("<MouseWheel>", self.zoom)
 
     def pdfimg(self, path):
         """
@@ -80,7 +82,7 @@ class Visualisation_pdf(tk.Toplevel):
         ip = Image_Processor("C:\\Users\\thoma\\PycharmProjects\\projet-programmation\\test\\output0.png",
                              "C:\\Program Files\\Tesseract-OCR\\tesseract.exe")
         coordonnees = tuple((self.topx * 4.54, self.topy * 4.54, self.botx * 4.54, self.boty * 4.54))
-        image_cropped = ip.crop(tuple((self.topx * 4.54, self.topy * 4.54, self.botx * 4.54, self.boty * 4.54)))
+        image_cropped = ip.crop(tuple((self.topx * (1/self.imgscale), self.topy * (1/self.imgscale), self.botx * (1/self.imgscale), self.boty * (1/self.imgscale))))
         height, weight = image_cropped.size
         if not (height == 0 or weight == 0):
             print(ip.__ocr_cropped_image__(image_cropped))
@@ -97,10 +99,29 @@ class Visualisation_pdf(tk.Toplevel):
         if self.n_img == len(self.imgfiles):
             self.n_img = 0
 
+        self.update_image()
+        self.text_nbpage.delete("1.0", "end-1c")
+        self.text_nbpage.insert(tk.END, self.n_img)
+
+    def zoom(self, event):
+        scale = 1.0
+        delta = 0.75
+        if event.num == 5 or event.delta == -120:
+            scale *= delta
+            self.imgscale *= delta
+        if event.num == 4 or event.delta == 120:
+            scale /= delta
+            self.imgscale /= delta
+
+        x = self.canvas.canvasx(event.x)
+        y = self.canvas.canvasy(event.y)
+        #self.canvas.scale('all', x, y, scale, scale)
+        self.update_image()
+        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
+
+    def update_image(self):
         self.img = Image.open(self.imgfiles[self.n_img])
-        self.img = self.img.resize((int(self.WIDTH * 0.22), int(self.HEIGHT * 0.22)))
+        self.img = self.img.resize((int(self.WIDTH * self.imgscale), int(self.HEIGHT * self.imgscale)))
         self.img = ImageTk.PhotoImage(self.img)
         self.canvas.itemconfig(self.img_canvas, image=self.img)
         self.canvas.grid(row=0, column=1)
-        self.text_nbpage.delete("1.0", "end-1c")
-        self.text_nbpage.insert(tk.END, self.n_img)

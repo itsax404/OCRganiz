@@ -15,7 +15,7 @@ class Visualisation_pdf(tk.Toplevel):
         self.path = path
         self.parent_dir = parent_dir
         self.imgfiles = []
-        self.imgscale = 0.22
+        self.imgscale = 0.25
         self.pdfimg()
         self.n_img = 0
 
@@ -38,8 +38,9 @@ class Visualisation_pdf(tk.Toplevel):
         self.frame.pack(side="left", fill=tk.Y, padx=10)
 
 
-        self.canvas = tk.Canvas(master=self.frame, width=self.WIDTH * 0.22, height=self.HEIGHT * 0.22,
-                                borderwidth=0, highlightthickness=0, scrollregion=(0, 0, 500, 500))
+
+        self.canvas = tk.Canvas(master=self.frame, width=self.WIDTH * self.imgscale, height=self.HEIGHT * self.imgscale,
+                                borderwidth=0, highlightthickness=0, scrollregion=(0, 0, 500, 500), background="green")
 
         self.img = self.img.resize((int(self.WIDTH * self.imgscale), int(self.HEIGHT * self.imgscale)))
         self.img = ImageTk.PhotoImage(self.img)
@@ -118,7 +119,7 @@ class Visualisation_pdf(tk.Toplevel):
             scale /= delta
         x = self.canvas.canvasx(event.x)
         y = self.canvas.canvasy(event.y)
-        #self.canvas.scale('all', x, y, scale, scale)
+        self.canvas.scale('all', x, y, scale, scale)
         self.update_image()
 
     def update_image(self):

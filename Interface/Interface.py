@@ -9,7 +9,7 @@ onglet = root.Tk()
 # fênetre principale
 onglet.geometry("800x800")
 onglet.title("Titre application")
-#root.Tk().iconbitmap('C:\Users\thoma\OneDrive\Documents\icone.jfif')
+onglet.iconbitmap('C:\\Users\\thoma\\PycharmProjects\\projet-programmation\\lib\\icon.ico')
 #
 
 list_file = Liste_interface_c(onglet)

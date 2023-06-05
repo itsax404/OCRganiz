@@ -1,3 +1,4 @@
+import os.path
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
@@ -6,15 +7,16 @@ from backend.images.image_processor import Image_Processor
 
 
 class Visualisation_pdf(tk.Toplevel):
-    def __init__(self, master, path):
+    def __init__(self, master, path, parent_dir):
         super().__init__(master=None)
         self.w, self.h = self.winfo_screenwidth(), self.winfo_screenheight()
         self.title("Visual pdf")
         self.geometry('%sx%s' % (self.w, self.h))
         self.path = path
+        self.parent_dir = parent_dir
         self.imgfiles = []
         self.imgscale = 0.22
-        self.pdfimg(self.path)
+        self.pdfimg()
         self.n_img = 0
 
         self.img = Image.open(self.imgfiles[self.n_img])
@@ -65,21 +67,23 @@ class Visualisation_pdf(tk.Toplevel):
         self.canvas.bind('<B1-Motion>', self.update_sel_rect)
         self.canvas.bind("<MouseWheel>", self.zoom)
 
-    def pdfimg(self, path):
+    def pdfimg(self):
         """
         Convertion des pdf en img .png
         :return:
         permet de enregistrer chaque page du pdf en .png
         """
-        doc = fitz.open(path)
+        doc = fitz.open(self.path)
         pages = doc.pages()
         images = [page.get_pixmap(dpi=300) for page in pages]
         for img, i in zip(images, range(len(images))):
-            img.save(f'C:\\Users\\thoma\\PycharmProjects\\projet-programmation\\test\\output{i}.png')
-            self.imgfiles.append(f'C:\\Users\\thoma\\PycharmProjects\\projet-programmation\\test\\output{i}.png')
+            output_path = os.path.join(self.parent_dir, "test", f"output{i}.png")
+            img.save(output_path)
+            self.imgfiles.append(output_path)
 
     def test(self):
-        ip = Image_Processor("C:\\Users\\thoma\\PycharmProjects\\projet-programmation\\test\\output0.png",
+        output_path = os.path.join(self.parent_dir, "test", f"output0.png")
+        ip = Image_Processor(output_path,
                              "C:\\Program Files\\Tesseract-OCR\\tesseract.exe")
         coordonnees = tuple((self.topx * 4.54, self.topy * 4.54, self.botx * 4.54, self.boty * 4.54))
         image_cropped = ip.crop(tuple((self.topx * (1/self.imgscale), self.topy * (1/self.imgscale), self.botx * (1/self.imgscale), self.boty * (1/self.imgscale))))
@@ -104,20 +108,18 @@ class Visualisation_pdf(tk.Toplevel):
         self.text_nbpage.insert(tk.END, self.n_img)
 
     def zoom(self, event):
-        scale = 1.0
         delta = 0.75
+        scale = 1
         if event.num == 5 or event.delta == -120:
-            scale *= delta
             self.imgscale *= delta
+            scale *= delta
         if event.num == 4 or event.delta == 120:
-            scale /= delta
             self.imgscale /= delta
-
+            scale /= delta
         x = self.canvas.canvasx(event.x)
         y = self.canvas.canvasy(event.y)
         #self.canvas.scale('all', x, y, scale, scale)
         self.update_image()
-        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
     def update_image(self):
         self.img = Image.open(self.imgfiles[self.n_img])

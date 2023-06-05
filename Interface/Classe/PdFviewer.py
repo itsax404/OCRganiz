@@ -14,8 +14,9 @@ class Visualisation_pdf(tk.Toplevel):
         self.path = path
         self.imgfiles = []
         self.pdfimg(self.path)
+        self.n_img = 0
 
-        self.img = Image.open(self.imgfiles[0])
+        self.img = Image.open(self.imgfiles[self.n_img])
         self.WIDTH, self.HEIGHT = self.img.width, self.img.height
 
         self.topx, self.topy, self.botx, self.boty = 0, 0, 0, 0
@@ -33,6 +34,7 @@ class Visualisation_pdf(tk.Toplevel):
         self.frame = tk.Frame(master=self, width=self.w, height=self.h)
         self.frame.pack(side="left", fill=tk.Y, padx=10)
 
+
         self.canvas = tk.Canvas(master=self.frame, width=self.WIDTH * 0.22, height=self.HEIGHT * 0.22,
                                 borderwidth=0, highlightthickness=0, scrollregion=(0, 0, 500, 500))
 
@@ -40,11 +42,20 @@ class Visualisation_pdf(tk.Toplevel):
         self.img = ImageTk.PhotoImage(self.img)
 
         self.canvas.img = self.img
-        self.canvas.create_image(0, 0, image=self.img, anchor=tk.NW)
-        self.canvas.pack()
+        self.img_canvas = self.canvas.create_image(0, 0, image=self.img, anchor=tk.NW)
+        self.canvas.grid(row=0, column=1)
 
-        btn_nextpage = tk.Button(self.frame, text="next", command=self.change_page)
-        btn_nextpage.pack()
+
+        btn_nextpage = tk.Button(self.frame, text=">", command=self.change_page)
+        btn_nextpage.grid(row=0, column=2)
+
+
+        btn_previouspage = tk.Button(self.frame, text="<", command=self.change_page)
+        btn_previouspage.grid(row=0, column=0)
+
+        self.text_nbpage = tk.Text(self.frame, height=2, width=2)
+        self.text_nbpage.insert(tk.END, "1")
+        self.text_nbpage.grid(row=1, column=1)
 
         self.rect_id = self.canvas.create_rectangle(self.topx, self.topy, self.topx, self.topy,
                                                     dash=(2, 2), fill='', outline='red')
@@ -82,7 +93,14 @@ class Visualisation_pdf(tk.Toplevel):
         self.canvas.coords(self.rect_id, self.topx, self.topy, self.botx, self.boty)
 
     def change_page(self):
-        self.img = Image.open(self.imgfiles[1])
+        self.n_img += 1
+        if self.n_img == len(self.imgfiles):
+            self.n_img = 0
+
+        self.img = Image.open(self.imgfiles[self.n_img])
         self.img = self.img.resize((int(self.WIDTH * 0.22), int(self.HEIGHT * 0.22)))
-        self.canvas.itemconfig(self.frame, image=self.img)
-        self.canvas.pack()
+        self.img = ImageTk.PhotoImage(self.img)
+        self.canvas.itemconfig(self.img_canvas, image=self.img)
+        self.canvas.grid(row=0, column=1)
+        self.text_nbpage.delete("1.0", "end-1c")
+        self.text_nbpage.insert(tk.END, self.n_img)

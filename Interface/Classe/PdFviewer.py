@@ -4,7 +4,7 @@ from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 import fitz
 from backend.images.image_processor import Image_Processor
-
+from .Zone_detection import Detection_rect
 
 class Visualisation_pdf(tk.Toplevel):
     def __init__(self, master, path, parent_dir):
@@ -18,6 +18,9 @@ class Visualisation_pdf(tk.Toplevel):
         self.imgscale = 0.25
         self.pdfimg()
         self.n_img = 0
+        self.posx = 0
+        self.posy = 0
+        self.list_detection_rect = []
 
         self.img = Image.open(self.imgfiles[self.n_img])
         self.WIDTH, self.HEIGHT = self.img.width, self.img.height
@@ -64,8 +67,11 @@ class Visualisation_pdf(tk.Toplevel):
         self.rect_id = self.canvas.create_rectangle(self.topx, self.topy, self.topx, self.topy,
                                                     dash=(2, 2), fill='', outline='red')
 
+
+
         self.canvas.bind('<Button-1>', self.get_mouse_posn)
         self.canvas.bind('<B1-Motion>', self.update_sel_rect)
+        self.canvas.bind('<Button-2>', self.recentrage_image)
         self.canvas.bind("<MouseWheel>", self.zoom)
 
     def pdfimg(self):
@@ -83,11 +89,11 @@ class Visualisation_pdf(tk.Toplevel):
             self.imgfiles.append(output_path)
 
     def test(self):
+        self.list_detection_rect.append(Detection_rect(self.imgscale,self.topx, self.topy, self.botx, self.boty, self.posx, self.posy))
         output_path = os.path.join(self.parent_dir, "test", f"output0.png")
         ip = Image_Processor(output_path,
                              "C:\\Program Files\\Tesseract-OCR\\tesseract.exe")
-        coordonnees = tuple((self.topx * 4.54, self.topy * 4.54, self.botx * 4.54, self.boty * 4.54))
-        image_cropped = ip.crop(tuple((self.topx * (1/self.imgscale), self.topy * (1/self.imgscale), self.botx * (1/self.imgscale), self.boty * (1/self.imgscale))))
+        image_cropped = ip.crop( coordonnées=self.list_detection_rect[0].dimension())
         height, weight = image_cropped.size
         if not (height == 0 or weight == 0):
             print(ip.__ocr_cropped_image__(image_cropped))
@@ -117,9 +123,10 @@ class Visualisation_pdf(tk.Toplevel):
         if event.num == 4 or event.delta == 120:
             self.imgscale /= delta
             scale /= delta
-        x = self.canvas.canvasx(event.x)
-        y = self.canvas.canvasy(event.y)
-        self.canvas.scale('all', x, y, scale, scale)
+        self.posx = self.canvas.canvasx(event.x)
+        self.posy = self.canvas.canvasy(event.y)
+        self.canvas.scale('all', self.posx, self.posy, scale, scale)
+        print(self.posx, self.posy)
         self.update_image()
 
     def update_image(self):
@@ -127,4 +134,19 @@ class Visualisation_pdf(tk.Toplevel):
         self.img = self.img.resize((int(self.WIDTH * self.imgscale), int(self.HEIGHT * self.imgscale)))
         self.img = ImageTk.PhotoImage(self.img)
         self.canvas.itemconfig(self.img_canvas, image=self.img)
+        self.canvas.lower(self.img_canvas)
         self.canvas.grid(row=0, column=1)
+
+
+    def recentrage_image(self, event):
+        scale = 1
+        x = 0
+        y = 0
+        self.imgscale = 0.25
+        self.canvas.delete(self.img_canvas)
+        self.img_canvas = None
+        self.canvas.imagetk = None
+        self.canvas.scale('all', x, y, scale, scale)
+        self.canvas.grid()
+        self.img_canvas = self.canvas.create_image(0, 0, image=self.img, anchor=tk.NW)
+        self.update_image()

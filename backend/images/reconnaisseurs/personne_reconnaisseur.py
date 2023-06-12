@@ -18,7 +18,7 @@ class Personne_Reconnaisseur(Reconnaisseur):
 
 	def reconnaitre(self, chaine):
 		nom, prenom = chaine.split(" ")
-		if not self.vérifier_string(nom)
+		if not self.vérifier_string(nom):
 			raise ValueError("Le nom n'est pas un nom valide")
 		if not self.vérifier_string(prenom):
 			raise ValueError("La prénom n'est pas un nom valide")

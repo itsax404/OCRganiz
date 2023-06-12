@@ -42,11 +42,18 @@ class Visualisation_pdf(tk.Toplevel):
         self.labelframe.pack(side="left", fill=tk.Y, padx=10)
 
         self.label = tk.Label(self.labelframe, text="")
-        self.label.grid(row=0, column=0)
+        self.label.grid(row=0, column=0, padx=10)
         btn = tk.Button(self.labelframe, text="test", command=self.test)
-        btn.grid()
+        btn.grid(row=0, column=0, padx=10)
         btn2 = tk.Button(self.labelframe, text="debug", command=self.debug)
-        btn2.grid()
+        btn2.grid(row=0, column=1 , padx=10)
+        self.choix_modèle = tk.StringVar()
+        self.str_choix = ("Facture", "Fiche de paie")
+        self.choix_modèle.set(self.str_choix[0])
+
+        self.option_menu = tk.OptionMenu(self.labelframe, self.choix_modèle, *self.str_choix)
+        self.option_menu.grid(row=0, column=2)
+
 
         self.frame = tk.Frame(master=self, width=self.w, height=self.h)
         self.frame.pack(side="left", fill=tk.Y, padx=10)

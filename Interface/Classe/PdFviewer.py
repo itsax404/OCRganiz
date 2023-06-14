@@ -5,6 +5,7 @@ from PIL import Image, ImageTk
 import fitz
 from backend.images.image_processor import Image_Processor
 from .Zone_detection import Detection_rect
+from .Tree_selection import List_selection_rect
 
 class Visualisation_pdf(tk.Toplevel):
     def __init__(self, master, path, parent_dir):
@@ -43,17 +44,23 @@ class Visualisation_pdf(tk.Toplevel):
 
         self.label = tk.Label(self.labelframe, text="")
         self.label.grid(row=0, column=0, padx=10)
+
         btn = tk.Button(self.labelframe, text="test", command=self.test)
         btn.grid(row=0, column=0, padx=10)
+
         btn2 = tk.Button(self.labelframe, text="debug", command=self.debug)
-        btn2.grid(row=0, column=1 , padx=10)
+        btn2.grid(row=0, column=1, padx=10)
+
+
         self.choix_modèle = tk.StringVar()
         self.str_choix = ("Facture", "Fiche de paie")
         self.choix_modèle.set(self.str_choix[0])
 
-        self.option_menu = tk.OptionMenu(self.labelframe, self.choix_modèle, *self.str_choix)
+        self.option_menu = tk.OptionMenu(self.labelframe, self.choix_modèle, *self.str_choix, command=self.changmt_option)
         self.option_menu.grid(row=0, column=2)
 
+        self.list_tree = List_selection_rect(self.labelframe, self.choix_modèle.get())
+        self.list_tree.affichage()
 
         self.frame = tk.Frame(master=self, width=self.w, height=self.h)
         self.frame.pack(side="left", fill=tk.Y, padx=10)
@@ -108,7 +115,7 @@ class Visualisation_pdf(tk.Toplevel):
         pages = doc.pages()
         images = [page.get_pixmap(dpi=300) for page in pages]
         for img, i in zip(images, range(len(images))):
-            output_path = os.path.join(self.parent_dir, "test", f"output{i}.png")
+            output_path = os.path.join(self.parent_dir, "test", f"output {i}.png")
             img.save(output_path)
             self.imgfiles.append(output_path)
 
@@ -191,11 +198,20 @@ class Visualisation_pdf(tk.Toplevel):
         self.newposx = self.newposx - self.posx
         self.newposy = self.newposy - self.posy
 
+
     def pos(self, event):
         self.canvas.scan_mark(event.x, event.y)
         self.posx = event.x
         self.posy = event.y
 
+
     def calcul_translation (self, event):
         self.translation_x += self.newposx
         self.translation_y += self.newposy
+
+
+    def changmt_option (self, event):
+        newmodele = self.choix_modèle.get()
+        self.list_tree.set_modele(newmodele)
+        self.list_tree.update_tree()
+        self.list_tree.ajouter_enfant("thomas")

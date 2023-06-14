@@ -13,6 +13,7 @@ class List_selection_rect (tk.Frame):
         self.tree.heading('#0', text='Zone de données importantes', anchor=tk.W)
 
         self.update_tree()
+        self.ajouter_parent("parent1")
         self.tree.grid(row=1, column=1, padx=10)
 
 
@@ -61,3 +62,14 @@ class List_selection_rect (tk.Frame):
     def set_modele(self, newmodele):
         self.modele = newmodele
         print(self.modele)
+
+
+    def ajouter_parent(self, id_parent):
+        self.tree.insert('', tk.END, text=id_parent, iid=id_parent, open=False)
+
+
+    def ajouter_enfant(self, id_enfant):
+        self.tree.insert('', tk.END, text=id_enfant, iid=id_enfant, open=False)
+        selected_parent = self.tree.selection()[0]
+        print(self.tree.parent(selected_parent))
+        #self.tree.move(id_enfant, selected_parent,)

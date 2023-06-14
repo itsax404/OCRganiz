@@ -214,3 +214,4 @@ class Visualisation_pdf(tk.Toplevel):
         newmodele = self.choix_modèle.get()
         self.list_tree.set_modele(newmodele)
         self.list_tree.update_tree()
+        self.list_tree.ajouter_enfant("thomas")

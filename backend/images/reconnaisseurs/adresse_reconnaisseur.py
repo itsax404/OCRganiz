@@ -1,6 +1,8 @@
 from reconnaisseur import Reconnaisseur
 import re
+sys.path.insert("D:\\Developpement\\Python\\projet-programmation\\backend\\images\\reconnaisseurs")
 
+from adresse import Adresse
 class Adresse_Reconnaisseur(Reconnaisseur):
 
 	def __init__(self):
@@ -113,20 +115,4 @@ class Adresse_Reconnaisseur(Reconnaisseur):
 				self.complement = valeur
     
 	def avoir(self):
-		return {"numéro": self.numero, "complément": self.complement, "adresse": self.adresse,"boite_postale": self.boite_postale, "code_postal": self.code_postal, "ville": self.ville, "pays": self.pays}
-
-ap = Adresse_Reconnaisseur()
-adresse1 = " 61 rue Reine Elisabeth \n 06500 Menton"
-ap.reconnaitre(adresse1)
-print(ap.avoir())
-adresse2 = "458 bis avenue du Stand \n 26000 Valence"
-ap.reconnaitre(adresse2) 
-print(ap.avoir())
-
-adresse3 = "Résidences Le Chemisier Batiment 7 Appart 535 \n56 avenue Marie Curie\n21000 Dijon"
-ap.reconnaitre(adresse3)
-print(ap.avoir())
-
-adresse4 = "Résidences La Martine Batiment C Appartement 402 bis \n 135 ter rue Albert Camus \n BP 39550\n 10000 Troyes"
-ap.reconnaitre(adresse4)
-print(ap.avoir())
+		return Adresse(self.numero, self.adresse, self.code_postal, self.ville, self.pays, self.complement, self.boite_postale)

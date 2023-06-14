@@ -107,6 +107,8 @@ __pycache__/
 # C extensions
 *.so
 
+facture_*.png
+
 # Distribution / packaging
 .Python
 build/

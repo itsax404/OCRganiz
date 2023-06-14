@@ -12,6 +12,11 @@ class Adresse_Reconnaisseur(Reconnaisseur):
 		self.ville = ""
 		self.pays = "France"
 
+	def est_un_nombre(self, chaine):
+		for lettre in chaine:
+			if lettre not in "0123456789":
+				return False
+		return True
 	def avoir_cp_ville(self, chaine):
 		nb_digits = 0
 		debut = -1
@@ -20,11 +25,11 @@ class Adresse_Reconnaisseur(Reconnaisseur):
 		mots = [mot for mot in list(chaine.split(" ")) if mot != ""]
 		for i, mot in enumerate(mots):
 			for lettre in mot:
-				if lettre in "0123456789":
+				if self.est_un_nombre(lettre):
 					nb_digits += 1
 				if nb_digits == 5:
 					cp = mots[i-1]
-		if cp == "-1":
+		if cp == "-1" or (cp == "BP"):
 			return None
 		else:
 			mots_restants = [mot for mot in mots if mot != ""]
@@ -34,7 +39,7 @@ class Adresse_Reconnaisseur(Reconnaisseur):
 	def avoir_bp(self, chaine):
 		bp = False
 		numero = -1
-		mots_restants = [mot for mot in chaine if mot != ""]
+		mots_restants = [mot.lower() for mot in chaine.split(" ") if mot != ""]
 		for mot in mots_restants:
 			if mot.lower() == "bp":
 				bp = True
@@ -46,8 +51,8 @@ class Adresse_Reconnaisseur(Reconnaisseur):
 					else:
 						test.append(False)
 				if bp and all(test):
-					numero = int(mot)
-		if not bp or numero == -1:
+					numero = mot
+		if not bp or numero == "-1":
 			return None
 		return ("BP", numero)
 
@@ -74,6 +79,8 @@ class Adresse_Reconnaisseur(Reconnaisseur):
 					test.append(False)
 			if all(test):
 				numero = mots_restants[i]
+				if i != 0:
+					numero = "-1"
 			elif mot == cardinal_multiplicatif:
 				pass
 			else:
@@ -93,12 +100,14 @@ class Adresse_Reconnaisseur(Reconnaisseur):
 			if self.avoir_cp_ville(valeur) is not None:
 				print(f"a - {valeur}")
 				self.code_postal, self.ville = self.avoir_cp_ville(valeur)
+				print(f"a - {self.code_postal} - {self.ville}")
 			elif self.avoir_bp(valeur) is not None:
 				print(f"b - {valeur}")
 				self.boite_postale = " ".join(list(self.avoir_bp(valeur)))
 			elif self.avoir_numero_adresse(valeur) is not None:
 				print(f"c - {valeur}")
 				self.numero, self.adresse = self.avoir_numero_adresse(valeur)
+				print(f"c - {self.numero} - {self.adresse}")
 			else:
 				print(f"d - {valeur}")
 				self.complement = valeur
@@ -116,4 +125,8 @@ print(ap.avoir())
 
 adresse3 = "Résidences Le Chemisier Batiment 7 Appart 535 \n56 avenue Marie Curie\n21000 Dijon"
 ap.reconnaitre(adresse3)
+print(ap.avoir())
+
+adresse4 = "Résidences La Martine Batiment C Appartement 402 bis \n 135 ter rue Albert Camus \n BP 39550\n 10000 Troyes"
+ap.reconnaitre(adresse4)
 print(ap.avoir())

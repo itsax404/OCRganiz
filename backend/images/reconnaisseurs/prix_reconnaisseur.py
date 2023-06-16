@@ -15,4 +15,3 @@ class Prix_Reconnaisseur(Reconnaisseur):
         return float(chaine.replace(",", "."))
 
 prix = Prix_Reconnaisseur()
-print(prix.reconnaitre("19.88"))

@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 import fitz
-from backend.images.image_processor import Image_Processor
+#from backend.images.image_processor import Image_Processor
 from .Zone_detection import Detection_rect
 from .Tree_selection import List_selection_rect
 from .fenetre_save import Save_modele
@@ -145,7 +145,7 @@ class Visualisation_pdf(tk.Toplevel):
         pages = doc.pages()
         images = [page.get_pixmap(dpi=300) for page in pages]
         for img, i in zip(images, range(len(images))):
-            output_path = os.path.join(self.parent_dir, "test", f"output {i}.png")
+            output_path = os.path.join(self.parent_dir, "Config_interface", "output", f"output {i}.png")
             img.save(output_path)
             self.imgfiles.append(output_path)
 
@@ -154,14 +154,14 @@ class Visualisation_pdf(tk.Toplevel):
         rect_test = Detection_rect(self.imgscale, self.topx, self.topy, self.botx, self.boty, self.translation_x, self.translation_y, self.n_img, "test")
         n = rect_test.get_nimg()
         output_path = os.path.join(self.imgfiles[n])
-        ip = Image_Processor(output_path,
-                             "C:\\Program Files\\Tesseract-OCR\\tesseract.exe")
-        image_cropped = ip.crop(coordonnées=rect_test.dimension())
-        height, weight = image_cropped.size
-        if not (height == 0 or weight == 0):
-            ip.detecte_adresse(coordonnées=rect_test.dimension())
-            self.text_test.delete("1.0", "end-1c")
-            self.text_test.insert(tk.END, ip.__crop_and_ocr__(rect_test.dimension()))
+        #ip = Image_Processor(output_path,
+                             #"C:\\Program Files\\Tesseract-OCR\\tesseract.exe")
+        #image_cropped = ip.crop(coordonnées=rect_test.dimension())
+        #height, weight = image_cropped.size
+        #if not (height == 0 or weight == 0):
+            #ip.detecte_adresse(coordonnées=rect_test.dimension())
+            #self.text_test.delete("1.0", "end-1c")
+            #self.text_test.insert(tk.END, ip.__crop_and_ocr__(rect_test.dimension()))
 
 
     def get_mouse_posn(self, event):

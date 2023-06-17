@@ -55,8 +55,6 @@ class Save_modele(tk.Toplevel):
         print(fichier_path)
         self.creation_data_rect(fichier_path)
 
-        #print(data_rect[('Acheteur', 'Acheteur.Prenom')])
-
 
     def ajouter_modele(self, input_text):
         fichier_path = os.path.join(self.parent_dir, "Config_interface", 'Modèle', 'Modèle_save')
@@ -67,8 +65,22 @@ class Save_modele(tk.Toplevel):
 
     def creation_data_rect(self, path):
         fichier_model = open(path, "w")
-        data_rect = {}
+        data_rect = []
         for rect in self.list_rect:
-            data_rect[rect.get_id()] = rect.dimension()
+            dict={"coordonnées":  rect.dimension(),
+                  "type": rect.get_id()
+                  }
+            data_rect.append(dict)
+        print(str(data_rect))
         fichier_model.write(str(data_rect))
         fichier_model.close()
+
+
+    def extraction_data_rect(self, path):
+        fichier = open(path, "r")
+        lignes = fichier.readlines()
+        fichier.close()
+
+        data_rect = lignes[0]
+        data_rect = eval(data_rect)
+        print(data_rect[1]['type'])

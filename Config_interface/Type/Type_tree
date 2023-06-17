@@ -1,12 +1,15 @@
 Facture
 {
-  'ligne 1' : 'Acheteur',
-  'subligne 1' : ['Nom','Prenom'],
-  'ligne 2' : 'Adresse_acheteur',
-  'ligne 3' : 'Enseigne',
-  'ligne 4' : 'Prix_ht',
-  'ligne 5' : 'Prix_ttc',
-  'ligne 6' : 'Date_achat'
+  'ligne 1' : 'personne',
+  'subligne 1' : ['nom','prenom'],
+  'ligne 2' : 'adresse',
+  'subligne 2' : ['numero','rue','complement', 'boite_postale', 'code_postal','ville','pays'],
+  'ligne 3' : 'entreprise',
+  'subligne 3' : ['nom', 'adresse'],
+  'subsubligne 3' : ['numero','rue','complement', 'boite_postale', 'code_postal','ville','pays'],
+  'ligne 4' : 'prix_ht',
+  'ligne 5' : 'prix_ttc',
+  'ligne 6' : 'date_achat'
 }
 Fiche de paie
 {

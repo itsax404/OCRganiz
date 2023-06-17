@@ -31,8 +31,17 @@ class List_selection_rect (tk.Frame):
                 if nom_children in dict_modele:
                     tabchildren = dict_modele[nom_children]
                     for j in range(0, len(tabchildren)):
-                        self.tree.insert('', tk.END, text=dict_modele[nom_children][j], iid=dict_modele[nom_children][j], open=False)
-                        self.tree.move(dict_modele[nom_children][j], dict_modele[nom_ligne], j)
+                        iid = dict_modele[nom_ligne] + "." + tabchildren[j]
+                        self.tree.insert('', tk.END, text=tabchildren[j], iid=iid, open=False)
+                        self.tree.move(iid, dict_modele[nom_ligne], j)
+                nom_souschildren = f"subsubligne {i}"
+                if nom_souschildren in dict_modele:
+                    tabsouschildren = dict_modele[nom_souschildren]
+                    for k in range(0, len(tabsouschildren)):
+                        idd_parent = dict_modele[nom_ligne] + "." + tabchildren[j]
+                        iid = dict_modele[nom_ligne] + "." + tabchildren[j] + "." + tabsouschildren[k]
+                        self.tree.insert('', tk.END, text=tabsouschildren[k], iid=iid, open=False)
+                        self.tree.move(iid, idd_parent, k)
 
 
 
@@ -69,9 +78,11 @@ class List_selection_rect (tk.Frame):
             selected_item = self.tree.selection()[0]
             parent_id = self.tree.parent(selected_item)
             if parent_id != "":
-                id = parent_id + "." + selected_item
-                return tuple((parent_id, id))
-
-            else:
                 id = selected_item
-                return tuple((id, None))
+                print(id)
+                return id
+
+            elif parent_id != "personne" or parent_id != "adresse" or parent_id != "entreprise" :
+                id = selected_item + "." + "flottant"
+                print(id)
+                return id

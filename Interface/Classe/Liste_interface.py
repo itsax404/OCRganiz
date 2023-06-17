@@ -73,10 +73,12 @@ class Liste_interface_c (tk.Frame):
         self.tv.config(yscrollcommand=scrollbar.set)
         scrollbar.config(command=self.tv.yview)
 
+
     def add(self, file):
         if(file!=None) :
             for newfile in file:
                 self.tv.insert(parent='', index='end', values=(0, newfile, 5))
+
 
     def suppr(self):
         res = messagebox.askyesno('', 'Voulez-vous vraiment supprimer les fichers?')
@@ -93,6 +95,7 @@ class Liste_interface_c (tk.Frame):
         for item in self.tv.get_children():
             self.tv.selection_add(item)
 
+
     def visualisation(self):
         selected_item = self.tv.selection()[0]
         data = list(self.tv.item(selected_item).get("values"))
@@ -108,12 +111,15 @@ class Menu_p (tk.Frame):
         self.master = master
         self.list = list_interface
         self.pack()
+
+
     def affichage(self):
         menu = Menu(master=self.master)
         element_menu = Menu(menu)
         element_menu.add_command(label='Ouvrir fichier', command=self.Openfiles)
         menu.add_cascade(label="Menu", menu=element_menu)
         self.master.config(menu=menu)
+
 
     def Openfiles(self):
         filenames = filedialog.askopenfilenames(initialdir="/", title="Select a File",

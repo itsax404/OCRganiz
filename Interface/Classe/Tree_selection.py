@@ -1,11 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
+import os.path
 class List_selection_rect (tk.Frame):
     def __init__(self, master, modele):
         super().__init__(master)
         self.master = master
-        self.grid()
+        self.grid(row=3, column=0)
         self.modele = modele
+        self.parent_dir = os.path.join(os.path.realpath(__file__), os.pardir, os.pardir, os.pardir)
 
 
     def affichage(self):
@@ -13,8 +15,7 @@ class List_selection_rect (tk.Frame):
         self.tree.heading('#0', text='Zone de données importantes', anchor=tk.W)
 
         self.update_tree()
-        self.ajouter_parent("parent1")
-        self.tree.grid(row=1, column=1, padx=10)
+        self.tree.grid(row=3, column=0, padx=10)
 
 
     def update_tree(self):
@@ -36,40 +37,41 @@ class List_selection_rect (tk.Frame):
 
 
     def get_tree_modele(self):
-        fichier = open("C:\\Users\\thoma\\PycharmProjects\\projet-programmation\\test\\tree_modèle", "r")
-        tree_modele = fichier.readlines()
+        type_path = os.path.join(self.parent_dir, "Config_interface","Type", 'Type_tree')
+        fichier = open(type_path, "r")
+        tree_type = fichier.readlines()
         fichier.close()
         modele_trouve = False
         i = 0
-        for ligne in tree_modele:
+        for ligne in tree_type:
 
             if ligne.find(self.modele) != -1:
                 modele_trouve = True
             if (modele_trouve == True and ligne.find("{") != -1):
                 debut = i
-                print(debut)
             if (modele_trouve == True and ligne.find("}") != -1):
                 fin = i
-                print(fin)
                 break
             i += 1
         dict=""
         for x in range(debut, fin+1):
-            dict += tree_modele[x]
+            dict += tree_type[x]
         dict = eval(dict.replace("'", "\""))
         return dict
 
+
     def set_modele(self, newmodele):
         self.modele = newmodele
-        print(self.modele)
 
 
-    def ajouter_parent(self, id_parent):
-        self.tree.insert('', tk.END, text=id_parent, iid=id_parent, open=False)
+    def get_selection_id(self):
+        if self.tree.selection() != ():
+            selected_item = self.tree.selection()[0]
+            parent_id = self.tree.parent(selected_item)
+            if parent_id != "":
+                id = parent_id + "." + selected_item
+                return tuple((parent_id, id))
 
-
-    def ajouter_enfant(self, id_enfant):
-        self.tree.insert('', tk.END, text=id_enfant, iid=id_enfant, open=False)
-        selected_parent = self.tree.selection()[0]
-        print(self.tree.parent(selected_parent))
-        #self.tree.move(id_enfant, selected_parent,)
+            else:
+                id = selected_item
+                return tuple((id, None))

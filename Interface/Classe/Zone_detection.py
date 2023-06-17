@@ -1,7 +1,7 @@
 
 
 class Detection_rect():
-    def __init__(self, scale, topx, topy, botx, boty, translation_x, translation_y, n_img):
+    def __init__(self, scale, topx, topy, botx, boty, translation_x, translation_y, n_img, id):
         self.scale = scale
 
         self.topx = topx - translation_x
@@ -11,7 +11,7 @@ class Detection_rect():
         self.boty = boty - translation_y
 
         self.n_img = n_img
-
+        self.id = id
 
     def dimension(self):
         dimension = tuple((self.topx * (1 / self.scale), self.topy * (1 / self.scale), self.botx * (1 / self.scale),
@@ -41,3 +41,6 @@ class Detection_rect():
 
     def get_nimg(self):
         return self.n_img
+
+    def get_id(self):
+        return self.id

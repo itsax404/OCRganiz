@@ -6,6 +6,7 @@ import fitz
 from backend.images.image_processor import Image_Processor
 from .Zone_detection import Detection_rect
 from .Tree_selection import List_selection_rect
+from .fenetre_save import Save_modele
 
 class Visualisation_pdf(tk.Toplevel):
     def __init__(self, master, path, parent_dir):
@@ -15,6 +16,8 @@ class Visualisation_pdf(tk.Toplevel):
         self.geometry('%sx%s' % (self.w, self.h))
         self.path = path
         self.parent_dir = parent_dir
+        icon_path = os.path.join(self.parent_dir, "lib", 'icon.ico')
+        self.iconbitmap(icon_path)
         self.imgfiles = []
         self.imgscale = 0.25
         self.canvasscale = 1
@@ -39,28 +42,54 @@ class Visualisation_pdf(tk.Toplevel):
         self.rect_id = None
 
     def affichage(self):
-        self.labelframe = tk.LabelFrame(master=self, text="liste des fichiers")
+        """ -------------------Menu------------"""
+        self.labelframe = tk.LabelFrame(master=self, text="Editeur de modèle")
         self.labelframe.pack(side="left", fill=tk.Y, padx=10)
 
-        self.label = tk.Label(self.labelframe, text="")
-        self.label.grid(row=0, column=0, padx=10)
+        frame_btn = tk.Frame(master=self.labelframe)
+        frame_btn.grid(row=0, column=0)
 
-        btn = tk.Button(self.labelframe, text="test", command=self.test)
-        btn.grid(row=0, column=0, padx=10)
+        labelframe_test = tk.LabelFrame(master=self.labelframe, text="test")
+        labelframe_test.grid(row=1, column=0)
 
-        btn2 = tk.Button(self.labelframe, text="debug", command=self.debug)
-        btn2.grid(row=0, column=1, padx=10)
+        frame_optrect = tk.LabelFrame(master=self.labelframe, text="Option zone de détection")
+        frame_optrect.grid(row=2, column=0, padx=10, pady=10)
+
+        frame_save = tk.Frame(master=self.labelframe)
+        frame_save.grid(row=4, column=0, padx=10, pady=10)
+
+        btn_test = tk.Button(master=frame_btn, text="Test", command=self.test)
+        btn_test.grid(row=0, column=0, padx=10)
+
+        btn_debug = tk.Button(master=frame_btn, text="Debug", command=self.debug)
+        btn_debug.grid(row=0, column=1)
+
+        btn_saverect = tk.Button(master=frame_optrect, text="Enregister zone de détection", command=self.add_rect)
+        btn_saverect.grid(row=0, column=0)
+
+        btn_resetmodèle = tk.Button(master=frame_optrect, text="Reset", command=self.reset)
+        btn_resetmodèle.grid(row=0, column=1)
+
+        btn_save = tk.Button(master=frame_save, text="Enregister modèle", command=self.fenetre_save)
+        btn_save.grid(row=0, column=0)
 
 
         self.choix_modèle = tk.StringVar()
         self.str_choix = ("Facture", "Fiche de paie")
         self.choix_modèle.set(self.str_choix[0])
 
-        self.option_menu = tk.OptionMenu(self.labelframe, self.choix_modèle, *self.str_choix, command=self.changmt_option)
-        self.option_menu.grid(row=0, column=2)
+        self.option_menu = tk.OptionMenu(frame_btn, self.choix_modèle, *self.str_choix, command=self.changmt_option)
+        self.option_menu.grid(row=0, column=2, padx=10)
 
         self.list_tree = List_selection_rect(self.labelframe, self.choix_modèle.get())
         self.list_tree.affichage()
+
+        self.text_test = tk.Text(labelframe_test, height=10, width=25)
+        self.text_test.grid(row=0, column=0)
+
+
+
+        """ -------------------Canvas------------"""
 
         self.frame = tk.Frame(master=self, width=self.w, height=self.h)
         self.frame.pack(side="left", fill=tk.Y, padx=10)
@@ -105,6 +134,7 @@ class Visualisation_pdf(tk.Toplevel):
         self.canvas.bind('<Button-2>', self.recentrage_image)
         self.canvas.bind("<MouseWheel>", self.zoom)
 
+
     def pdfimg(self):
         """
         Convertion des pdf en img .png
@@ -119,16 +149,20 @@ class Visualisation_pdf(tk.Toplevel):
             img.save(output_path)
             self.imgfiles.append(output_path)
 
+
     def test(self):
-        self.list_detection_rect.append(Detection_rect(self.imgscale, self.topx, self.topy, self.botx, self.boty, self.translation_x, self.translation_y, self.n_img))
-        n=self.list_detection_rect[0].get_nimg()
+        rect_test = Detection_rect(self.imgscale, self.topx, self.topy, self.botx, self.boty, self.translation_x, self.translation_y, self.n_img, "test")
+        n = rect_test.get_nimg()
         output_path = os.path.join(self.imgfiles[n])
         ip = Image_Processor(output_path,
                              "C:\\Program Files\\Tesseract-OCR\\tesseract.exe")
-        image_cropped = ip.crop(coordonnées=self.list_detection_rect[0].dimension())
+        image_cropped = ip.crop(coordonnées=rect_test.dimension())
         height, weight = image_cropped.size
         if not (height == 0 or weight == 0):
-            ip.detecte_adresse(coordonnées=self.list_detection_rect[0].dimension())
+            ip.detecte_adresse(coordonnées=rect_test.dimension())
+            self.text_test.delete("1.0", "end-1c")
+            self.text_test.insert(tk.END, ip.__crop_and_ocr__(rect_test.dimension()))
+
 
     def get_mouse_posn(self, event):
         self.topx, self.topy = event.x, event.y
@@ -138,6 +172,7 @@ class Visualisation_pdf(tk.Toplevel):
         self.botx, self.boty = event.x, event.y
         self.canvas.coords(self.rect_id, self.topx - self.translation_x, self.topy - self.translation_y, self.botx - self.translation_x, self.boty - self.translation_y )
 
+
     def change_page(self):
         self.n_img += 1
         if self.n_img == len(self.imgfiles):
@@ -146,6 +181,7 @@ class Visualisation_pdf(tk.Toplevel):
         self.update_image()
         self.text_nbpage.delete("1.0", "end-1c")
         self.text_nbpage.insert(tk.END, self.n_img)
+
 
     def zoom(self, event):
         delta = 0.75
@@ -157,6 +193,7 @@ class Visualisation_pdf(tk.Toplevel):
             self.imgscale /= delta
         print(self.posx, self.posy, self.canvasscale)
         self.update_image()
+
 
     def update_image(self):
         self.img = Image.open(self.imgfiles[self.n_img])
@@ -186,10 +223,16 @@ class Visualisation_pdf(tk.Toplevel):
         self.canvas.yview_moveto(0)
         self.update_image()
 
-    def debug(self):
-        for rect in self.list_detection_rect:
-            self.canvas.coords(self.rect_id, rect.get_topx(), rect.get_topy(), rect.get_botx(), rect.get_boty())
 
+    def debug(self):
+        self.rect_debug = []
+        i = 0
+        for rect in self.list_detection_rect:
+            self.rect_debug.append(self.canvas.create_rectangle(self.topx, self.topy, self.topx, self.topy,
+                                                dash=(2, 2), fill='', outline='blue'))
+            self.canvas.coords(self.rect_debug[i], rect.get_topx(), rect.get_topy(), rect.get_botx(), rect.get_boty())
+            i += 1
+            print(rect.get_id())
 
     def new_pos(self, event):
         self.canvas.scan_dragto(event.x, event.y, gain=1)
@@ -205,13 +248,31 @@ class Visualisation_pdf(tk.Toplevel):
         self.posy = event.y
 
 
-    def calcul_translation (self, event):
+    def calcul_translation(self, event):
         self.translation_x += self.newposx
         self.translation_y += self.newposy
 
 
-    def changmt_option (self, event):
+    def changmt_option(self, event):
         newmodele = self.choix_modèle.get()
         self.list_tree.set_modele(newmodele)
         self.list_tree.update_tree()
-        self.list_tree.ajouter_enfant("thomas")
+
+
+    def add_rect(self):
+        id = self.list_tree.get_selection_id()
+        self.list_detection_rect.append(
+            Detection_rect(self.imgscale, self.topx, self.topy, self.botx, self.boty, self.translation_x,
+                           self.translation_y, self.n_img, id))
+
+
+    def reset(self):
+        self.list_detection_rect.clear()
+        for i in range(0, len(self.rect_debug)):
+            self.canvas.delete(self.rect_debug[i])
+
+
+    def fenetre_save(self):
+        save_fenetre = Save_modele()
+        save_fenetre.set_data_rect(self.list_detection_rect)
+        save_fenetre.affichage()

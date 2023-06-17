@@ -94,7 +94,7 @@ def generate_invoice():
 	draw.text((780, 492), fake.phone_number(), font=font, fill=(0, 0, 0))
 	draw.text((780, 522), fake.email(), font=font, fill=(0, 0, 0))
 
-	numero_facture = random.randint(1000, 9999)
+	numero_facture = random.randint(1, 9999)
 	draw.text((828, 190), f"Facture n°{numero_facture}", font=font_bold, fill=(255, 255, 255))
 
 	date = fake.date().replace("-", "/")
@@ -110,8 +110,8 @@ def generate_invoice():
 	for i in range(7):
 		description = mots_choisis[i]
 		unité = "1 p"
-		quantite = random.randint(1, 100)
-		unite_ht = random.randint(1, 10000)
+		quantite = random.randint(1, 20)
+		unite_ht = random.randint(1, 100)
 		tva = "20 %"
 		prix_ht = quantite * unite_ht
 		montant_ht += prix_ht

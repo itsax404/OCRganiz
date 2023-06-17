@@ -1,0 +1,19 @@
+Facture
+{
+  'ligne 1' : 'Acheteur',
+  'subligne 1' : ['Nom','Prenom'],
+  'ligne 2' : 'Adresse_acheteur',
+  'ligne 3' : 'Enseigne',
+  'ligne 4' : 'Prix_ht',
+  'ligne 5' : 'Prix_ttc',
+  'ligne 6' : 'Date_achat'
+}
+Fiche de paie
+{
+  'ligne 1' : 'Entreprise',
+  'ligne 2' : 'Employe',
+  'subligne 2' : ['Nom','Prenom'],
+  'ligne 3' : 'Date',
+  'ligne 4' : 'revenu_brut',
+  'ligne 5' : 'revenu_net'
+}

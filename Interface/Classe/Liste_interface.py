@@ -2,13 +2,15 @@ import os.path
 import tkinter as tk
 from tkinter import ttk, messagebox, Menu, filedialog
 from .PdFviewer import Visualisation_pdf
+from .Fenetre_def_modèle import Defenir_modele
 class Liste_interface_c (tk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.master = master
         self.pack()
         self.path = os.path.join(os.path.realpath(__file__), os.pardir, os.pardir, os.pardir)
-        print(self.path)
+
+
     def affichage(self):
 
         self.frame = tk.Frame(master=self.master, borderwidth=5, relief="ridge")
@@ -28,16 +30,19 @@ class Liste_interface_c (tk.Frame):
                     affichage dans la fênetre"""
 
         self.file_btn = tk.LabelFrame(self.frame, text="option")
-        self.file_btn.pack(fill=tk.BOTH, padx=10, pady=10)
+        self.file_btn.pack(fill=tk.BOTH, padx=20, pady=10)
 
         btn_all = tk.Button(master=self.file_btn, text="Selectionner tout les fichiers", command=self.tout_select)
         btn_all.grid(row=0, column=0, padx=10, pady=10)
 
-        btn_suppr = tk.Button(master=self.file_btn, text="supprimer", command=self.suppr)
+        btn_suppr = tk.Button(master=self.file_btn, text="Supprimer", command=self.suppr)
         btn_suppr.grid(row=0, column=1, padx=10, pady=10)
 
-        btn_visualisation = tk.Button(master=self.file_btn, text="visualiser fichier", command=self.visualisation)
+        btn_visualisation = tk.Button(master=self.file_btn, text="Visualiser fichier", command=self.visualisation)
         btn_visualisation.grid(row=0, column=2, padx=10, pady=10)
+
+        btn_visualisation = tk.Button(master=self.file_btn, text="Definir modèle", command=self.open_fenetre_modèle)
+        btn_visualisation.grid(row=0, column=3, padx=10, pady=10)
 
     def affichage_label_list(self):
 
@@ -59,7 +64,7 @@ class Liste_interface_c (tk.Frame):
 
         self.tv.heading(1, text='Type')
         self.tv.heading(2, text='Adresse du fichier')
-        self.tv.heading(3, text='date')
+        self.tv.heading(3, text='Modèle')
 
         style = ttk.Style()
         style.theme_use("default")
@@ -103,6 +108,17 @@ class Liste_interface_c (tk.Frame):
         v_fenetre.affichage()
 
 
+    def open_fenetre_modèle(self):
+        self.fenetre_defmodele = Defenir_modele(self)
+        self.fenetre_defmodele.affichage()
+
+
+
+    def change_type_modele(self):
+        selected_item = self.tv.selection()
+        self.tv.item(item= selected_item, values=("test toto", "tom", "Ad"))
+
+
 
 
 class Menu_p (tk.Frame):
@@ -125,3 +141,4 @@ class Menu_p (tk.Frame):
         filenames = filedialog.askopenfilenames(initialdir="/", title="Select a File",
                                                 filetypes=(("pdf", "*.pdf"), ("all files", "*.*")))
         self.list.add(filenames)
+

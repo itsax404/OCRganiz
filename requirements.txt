@@ -1,5 +1,6 @@
-Pillow~=9.5.0
-pytesseract~=0.3.10
+Pillow
+pytesseract
 PyMuPDF
-pathlib~=1.0.1
-Faker~=18.10.1
+pathlib
+Faker
+python-dotenv

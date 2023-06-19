@@ -1,4 +1,4 @@
-from .adresse import Adresse
+from backend.classes.bases.adresse import Adresse
 
 
 class Entreprise:

@@ -1,9 +1,7 @@
-from reconnaisseur import Reconnaisseur
+from backend.images.reconnaisseurs import Reconnaisseur
 
-from adresse_reconnaisseur import Adresse_Reconnaisseur
-sys.path.insert("D:\\Developpement\\Python\\projet-programmation\\backend\\images\\reconnaisseurs")
-
-from entreprise import Entreprise
+from backend.images.reconnaisseurs.adresse_reconnaisseur import Adresse_Reconnaisseur
+from backend.classes.bases.entreprise import Entreprise
 
 class Entreprise_Reconnaisseur(Reconnaisseur):
 

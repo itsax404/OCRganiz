@@ -1,12 +1,12 @@
 import sqlite3
 import os
 from pathlib import Path
-from classes.bases.adresse import Adresse
-from classes.fiche_paie import Fiche_Paie
-from classes.bases.personne import Personne
-from classes.bases.entreprise import Entreprise
-from classes.facture import Facture
-
+from backend.classes.bases.adresse import Adresse
+from backend.classes.fiche_paie import Fiche_Paie
+from backend.classes.bases.personne import Personne
+from backend.classes.bases.entreprise import Entreprise
+from backend.classes.facture import Facture
+from backend.classes.modele import Modele
 
 class Database:
 
@@ -40,24 +40,27 @@ class Database:
 			'employe INT, date DATE, revenu_brut DOUBLE, revenu_net DOUBLE, fichier LONGBLOB, FOREIGN KEY (entreprise) '
 			'REFERENCES entreprises(id), FOREIGN KEY (employe) REFERENCES personnes(id) )',
 			'CREATE TABLE IF NOT EXISTS modeles (nom_modele TEXT PRIMARY KEY, type TEXT ,'
-			'rectangle_x1_1 FLOAT, rectangle_x1_2 FLOAT, rectangley1_1 FLOAT, rectangley1_2 FLOAT, '
+			'rectangle_x1_1 FLOAT, rectangle_x1_2 FLOAT, rectangle_y1_1 FLOAT, rectangle_y1_2 FLOAT, '
 			'utilisation_rectangle1 TEXT,rectangle_x2_1 FLOAT, rectangle_x2_2 FLOAT, rectangle_y2_1 FLOAT, '
-			'rectangley2_2 FLOAT, utilisation_rectangle2 TEXT,rectangle_x3_1 FLOAT, rectangle_x3_2 FLOAT, '
-			'rectangley3_1 FLOAT, rectangley3_2 FLOAT, utilisation_rectangle3 TEXT,rectangle_x4_1 FLOAT, '
-			'rectangle_x4_2 FLOAT, rectangley4_1 FLOAT, rectangley4_2 FLOAT, utilisation_rectangle4 TEXT,'
-			'rectangle_x5_1 FLOAT, rectangle_x5_2 FLOAT, rectangley5_1 FLOAT, rectangley5_2 FLOAT, '
-			'utilisation_rectangle5 TEXT,rectangle_x6_1 FLOAT, rectangle_x6_2 FLOAT, rectangley6_1 FLOAT, '
-			'rectangley6_2 FLOAT, utilisation_rectangle6 TEXT,rectangle_x7_1 FLOAT, rectangle_x7_2 FLOAT, '
-			'rectangley7_1 FLOAT, rectangley7_2 FLOAT, utilisation_rectangle7 TEXT,rectangle_x8_1 FLOAT, '
-			'rectangle_x8_2 FLOAT, rectangley8_1 FLOAT, rectangley8_2 FLOAT, utilisation_rectangle8 TEXT,'
-			'rectangle_x9_1 FLOAT, rectangle_x9_2 FLOAT, rectangley9_1 FLOAT, rectangley9_2 FLOAT, '
-			'utilisation_rectangle9 TEXT,rectangle_x10_1 FLOAT, rectangle_x10_2 FLOAT, rectangley10_1 FLOAT, '
-			'rectangley10_2 FLOAT, utilisation_rectangle10 TEXT,rectangle_x11_1 FLOAT, rectangle_x11_2 FLOAT, '
-			'rectangley11_1 FLOAT, rectangley11_2 FLOAT, utilisation_rectangle11 TEXT,rectangle_x12_1 FLOAT, '
-			'rectangle_x12_2 FLOAT, rectangley12_1 FLOAT, rectangley12_2 FLOAT, utilisation_rectangle12 TEXT,'
-			'rectangle_x13_1 FLOAT, rectangle_x13_2 FLOAT, rectangley13_1 FLOAT, rectangley13_2 FLOAT, '
-			'utilisation_rectangle13 TEXT,rectangle_x14_1 FLOAT, rectangle_x14_2 FLOAT, rectangley14_1 FLOAT, '
-			'rectangley14_2 FLOAT, utilisation_rectangle14 TEXT)'
+			'rectangle_y2_2 FLOAT, utilisation_rectangle2 TEXT,rectangle_x3_1 FLOAT, rectangle_x3_2 FLOAT, '
+			'rectangle_y3_1 FLOAT, rectangle_y3_2 FLOAT, utilisation_rectangle3 TEXT,rectangle_x4_1 FLOAT, '
+			'rectangle_x4_2 FLOAT, rectangle_y4_1 FLOAT, rectangle_y4_2 FLOAT, utilisation_rectangle4 TEXT,'
+			'rectangle_x5_1 FLOAT, rectangle_x5_2 FLOAT, rectangle_y5_1 FLOAT, rectangle_y5_2 FLOAT, '
+			'utilisation_rectangle5 TEXT,rectangle_x6_1 FLOAT, rectangle_x6_2 FLOAT, rectangle_y6_1 FLOAT, '
+			'rectangle_y6_2 FLOAT, utilisation_rectangle6 TEXT,rectangle_x7_1 FLOAT, rectangle_x7_2 FLOAT, '
+			'rectangle_y7_1 FLOAT, rectangle_y7_2 FLOAT, utilisation_rectangle7 TEXT,rectangle_x8_1 FLOAT, '
+			'rectangle_x8_2 FLOAT, rectangle_y8_1 FLOAT, rectangle_y8_2 FLOAT, utilisation_rectangle8 TEXT,'
+			'rectangle_x9_1 FLOAT, rectangle_x9_2 FLOAT, rectangle_y9_1 FLOAT, rectangle_y9_2 FLOAT, '
+			'utilisation_rectangle9 TEXT,rectangle_x10_1 FLOAT, rectangle_x10_2 FLOAT, rectangle_y10_1 FLOAT, '
+			'rectangle_y10_2 FLOAT, utilisation_rectangle10 TEXT,rectangle_x11_1 FLOAT, rectangle_x11_2 FLOAT, '
+			'rectangle_y11_1 FLOAT, rectangle_y11_2 FLOAT, utilisation_rectangle11 TEXT,rectangle_x12_1 FLOAT, '
+			'rectangle_x12_2 FLOAT, rectangle_y12_1 FLOAT, rectangle_y12_2 FLOAT, utilisation_rectangle12 TEXT,'
+			'rectangle_x13_1 FLOAT, rectangle_x13_2 FLOAT, rectangle_y13_1 FLOAT, rectangle_y13_2 FLOAT, '
+			'utilisation_rectangle13 TEXT,rectangle_x14_1 FLOAT, rectangle_x14_2 FLOAT, rectangle_y14_1 FLOAT, '
+			'rectangle_y14_2 FLOAT, utilisation_rectangle14 TEXT,rectangle_x15_1 FLOAT, rectangle_x15_2 FLOAT, rectangle_y15_1 FLOAT, '
+			'rectangle_y15_2 FLOAT, utilisation_rectangle15 TEXT,rectangle_x16_1 FLOAT, rectangle_x16_2 FLOAT, rectangle_y16_1 FLOAT, '
+			'rectangle_y16_2 FLOAT, utilisation_rectangle16 TEXT,rectangle_x17_1 FLOAT, rectangle_x17_2 FLOAT, rectangle_y17_1 FLOAT, '
+			'rectangle_y17_2 FLOAT, utilisation_rectangle17 TEXT)'
 		]
 		for instruction in instructions_sql:
 			curseur.execute(instruction)
@@ -83,8 +86,8 @@ class Database:
 		self.connexion.commit()
 		donnees = adresse.avoir_donnees()
 		nouvelle_adresse = Adresse(donnees["numero_rue"], donnees["adresse"], donnees["complement"],
-		                           donnees["boite_postale"], donnees["code_postal"], donnees["ville"], donnees["pays"],
-		                           curseur.lastrowid)
+								   donnees["boite_postale"], donnees["code_postal"], donnees["ville"], donnees["pays"],
+								   curseur.lastrowid)
 		curseur.close()
 		return nouvelle_adresse
 
@@ -194,7 +197,7 @@ class Database:
 			return self.avoir_personne(personne.avoir_identifiant())
 		curseur = self.connexion.cursor()
 		curseur.execute('INSERT INTO personnes (nom, prenom) VALUES (?, ?, ?, ?)',
-		               tuple(personne.avoir_donnees().values()))
+					   tuple(personne.avoir_donnees().values()))
 		self.connexion.commit()
 		donnees = personne.avoir_donnees()
 		nouvelle_personne = Personne(donnees["nom"], donnees["prenom"], curseur.lastrowid)
@@ -272,7 +275,7 @@ class Database:
 			return None
 		curseur = self.connexion.cursor()
 		curseur.execute("UPDATE personnes SET nom = ?, prenom = ? WHERE id = ?",
-		               tuple(nouvelle_personne.avoir_donnees().values()) + (id,))
+					   tuple(nouvelle_personne.avoir_donnees().values()) + (id,))
 		self.connexion.commit()
 		curseur.close()
 		return self.avoir_personne(id)
@@ -309,7 +312,7 @@ class Database:
 		adresse_entreprise = entreprise.adresse
 		adresse_bdd = self.ajouter_adresse(adresse_entreprise)
 		curseur.execute("INSERT INTO entreprises (nom, adresse) VALUES (?, ?)",
-		                 tuple((entreprise.avoir_nom(), adresse_bdd.avoir_identifiant())))
+						 tuple((entreprise.avoir_nom(), adresse_bdd.avoir_identifiant())))
 		donnees = entreprise.avoir_donnees()
 		entreprise_classe = Entreprise(donnees["nom"], adresse_bdd, curseur.lastrowid)
 		self.connexion.commit()
@@ -378,7 +381,7 @@ class Database:
 		nouvelle_adresse = self.ajouter_adresse(nouvelle_entreprise.avoir_adresse())
 		curseur = self.connexion.cursor()
 		curseur.execute("UPDATE entreprises SET nom = ?, adresse = ? WHERE id = ?",
-		                (nouvelle_entreprise.avoir_nom, nouvelle_adresse.avoir_identifiant(), id))
+						(nouvelle_entreprise.avoir_nom, nouvelle_adresse.avoir_identifiant(), id))
 		self.connexion.commit()
 		curseur.close()
 		return self.avoir_entreprise(id)
@@ -451,7 +454,7 @@ class Database:
 		adresse_acheteur = self.avoir_adresse(resultat[2])
 		enseigne = self.avoir_entreprise(resultat[3])
 		return Facture(acheteur, adresse_acheteur, enseigne, resultat[4], resultat[5], resultat[6], resultat[7],
-		               resultat[0])
+					   resultat[0])
 
 	def avoir_identifiant_facture(self, facture: Facture) -> int | None:
 		"""
@@ -480,7 +483,7 @@ class Database:
 			adresse_acheteur = self.avoir_adresse(facture[2])
 			enseigne = self.avoir_entreprise(facture[3])
 			facture_classe = Facture(acheteur, adresse_acheteur, enseigne, facture[4], facture[5], facture[6],
-			                         facture[7], facture[0])
+									 facture[7], facture[0])
 			factures.append(facture_classe)
 		curseur.close()
 		return factures
@@ -672,7 +675,7 @@ class Database:
 
 	# <============ PARTIE MODELE ============>
 
-    	def ajouter_modele(self, modele: Modele) -> Modele:
+	def ajouter_modele(self, modele: Modele) -> Modele:
 		"""
 		Permet d'ajouter une entreprise dans la base de données
 		Et renvoie un objet "Entreprise" avec l'identifiant de la base de données dans celle-ci
@@ -682,74 +685,84 @@ class Database:
 		:rtype: Entreprise
 		"""
 		curseur = self.connexion.cursor()
-        if self.est_deja_existant(modele.avoir_nom())
-            return self.avoir_modele(entreprise.avoir_nom())
-        string_bdd = "INSERT INTO modeles ("
-        values = [modele.avoir_nom().lower()]
-        for i, donnee in enumerate(modele.avoir_donnee()):
-        	string_temp = f"rectangle_x{i}_1, rectangle_x{i}_2, rectangle_y{i}_1, rectangle_y{i}_2, utilisation_reactangle{i+1}"
-			if i != (len(modele.avoir_donnee()) - 1):
-				string_temp += ", "
-        	values.append(donnee[f"rectangle_x{i + 1}_1"])        			values.append(donnee[f"rectangle_x{i + 1}_2"])        			values.append(donnee[f"rectangle_y{i + 1}_1"])        
-          	values.append(donnee[f"rectangle_y{i + 1}_2"])
-			values.append(donnee[f"type_{i + 1}]"])
-		string_temp += " VALUES ()"
+		if self.est_deja_existant(modele.avoir_nom()):
+			return self.avoir_modele(modele.avoir_nom())
+		string_bdd = "INSERT INTO modeles (nom_modele, type, "
+		values = [modele.avoir_nom().lower(), "facture"]
+		test = 2
+		for i, donnee in enumerate(modele.avoir_donnees()):
+			string_bdd+= f"rectangle_x{i + 1}_1, rectangle_x{i + 1}_2, rectangle_y{i + 1}_1, rectangle_y{i + 1}_2, utilisation_rectangle{i+1}"
+			if i != (len(modele.avoir_donnees()) - 1):
+				string_bdd += ", "
+			values.append(donnee[f"rectangle_x{i + 1}_1"])
+			values.append(donnee[f"rectangle_x{i + 1}_2"])
+			values.append(donnee[f"rectangle_y{i + 1}_1"])
+			values.append(donnee[f"rectangle_y{i + 1}_2"])
+			values.append(donnee[f"utilisation_rectangle{i + 1}"])
+			test += 5
+		string_bdd += ") VALUES ("
 		for i in range(len(values)):
-			if i == (len(values) - 1):
-				string_temp += "?)"
-			string_temp += "?,"
+			if i == (len(values)-1):
+				string_bdd += "?)"
+			else:
+				string_bdd += "?,"
+		curseur.execute(string_bdd, tuple(values))
 		self.connexion.commit()
 		curseur.close()
 		return modele
 
-	def avoir_entreprise(self, nom: str) -> Entreprise:
+	def avoir_modele(self, nom: str) -> Modele:
 		"""
-		Permet d'avoir une entreprise de la base de données
-		:param id: l'identifiant de l'entreprise
-		:type id: int
-		:return: l'objet Entreprise correspondant à l'identifiant
-		:rtype: Entreprise
+		TODO
 		"""
 		curseur = self.connexion.cursor()
-		curseur.execute("SELECT * FROM entreprises WHERE id = ?", (id,))
+		curseur.execute("SELECT * FROM modeles WHERE nom_modele = ?", (nom,))
 		resultat = curseur.fetchone()
 		if resultat is None:
 			return None
-		adresse = self.avoir_adresse(resultat[2])
-		return Entreprise(resultat[1], adresse, resultat[0])
-
-	def avoir_identifiant_entreprise(self, entreprise: Entreprise) -> int:
-		"""
-		Permet d'avoir l'identifiant d'une entreprise dans la base de données
-		:param entreprise: l'entreprise dont on veut l'identifiant
-		:type entreprise: Entreprise
-		:return: l'identifiant de l'entreprise dans la base de données
-		:rtype: int
-		"""
-		entreprises = self.avoir_toutes_les_entreprises()
-		for entreprise_de_la_base in entreprises:
-			if entreprise_de_la_base == entreprise:
-				return entreprise_de_la_base.avoir_identifiant()
-		return None
-
-	def avoir_toutes_les_entreprises(self) -> list[Entreprise]:
+		curseur.close()
+		nombre_rectangle = (len(resultat) - 3) // 5
+		liste_donnees = [{"nom_modele": resultat[0], "type": resultat[1]}]
+		for i in range(nombre_rectangle):
+			donnees_dict = dict()
+			donnees = list()
+			donnees.append(resultat[2 + i * 5])
+			donnees.append(resultat[3 + i * 5])
+			donnees.append(resultat[4 + i * 5])
+			donnees.append(resultat[5 + i * 5])
+			donnees.append(resultat[6 + i * 5])
+			donnees_dict["coordonnées"] = tuple(donnees)
+			donnees_dict["type"] = resultat[7 + i * 5]
+			liste_donnees.append(donnees_dict)
+		return Modele(liste_donnees)
+	def avoir_tous_les_modeles(self) -> list[Modele]:
 		"""
 		Permet d'avoir toutes les entreprises de la base de données
 		:return: une liste des entreprises dans la base de données
 		:rtype: list[Entreprise]
 		"""
 		curseur = self.connexion.cursor()
-		curseur.execute("SELECT * FROM entreprises")
-		resultat = curseur.fetchall()
-		entreprises = list()
-		for entreprise in resultat:
-			adresse_classe = self.avoir_adresse(entreprise[2])
-			entreprise_classe = Entreprise(entreprise[1], adresse_classe, entreprise[0])
-			entreprises.append(entreprise_classe)
-		curseur.close()
-		return entreprises
+		curseur.execute("SELECT * FROM modeles")
+		resultats = curseur.fetchall()
+		modeles = list()
+		for resultat in resultats:
+			nombre_rectangle = (len(resultat) - 3) // 5
+			liste_donnees = [{"nom_modele": resultat[0], "type": resultat[1]}]
+			for i in range(nombre_rectangle):
+				donnees_dict = dict()
+				donnees = list()
+				donnees.append(resultat[2 + i * 5])
+				donnees.append(resultat[3 + i * 5])
+				donnees.append(resultat[4 + i * 5])
+				donnees.append(resultat[5 + i * 5])
+				donnees.append(resultat[6 + i * 5])
+				donnees_dict["coordonnées"] = tuple(donnees)
+				donnees_dict["type"] = resultat[7 + i * 5]
+				liste_donnees.append(donnees_dict)
+			modeles.append(Modele(liste_donnees))
+		return modeles
 
-	def modifier_entreprise(self, id: int, nouvelle_entreprise: Entreprise) -> Entreprise:
+	def modifier_modele(self, nom: str, modele: Modele) -> Modele:
 		"""
 		Permet de modifier une entreprise dans la base de données
 		:param id: l'identifiant de l'entreprise à modifier
@@ -759,17 +772,13 @@ class Database:
 		:return: l'entreprise modifiée avec l'identifiant fourni
 		:rtype: Entreprise
 		"""
-		if not self.est_dans_la_base_entreprise(id):
+		if not self.est_deja_existant(nom):
 			return None
-		nouvelle_adresse = self.ajouter_adresse(nouvelle_entreprise.avoir_adresse())
-		curseur = self.connexion.cursor()
-		curseur.execute("UPDATE entreprises SET nom = ?, adresse = ? WHERE id = ?",
-		                (nouvelle_entreprise.avoir_nom, nouvelle_adresse.avoir_identifiant(), id))
-		self.connexion.commit()
-		curseur.close()
-		return self.avoir_entreprise(id)
+		self.supprimer_modele(nom)
+		modele_bdd = self.ajouter_modele(modele)
+		return modele_bdd
 
-	def supprimer_entreprise(self, id: int) -> None:
+	def supprimer_modele(self, nom: str) -> None:
 		"""
 		Permet de supprimer une entreprise
 		:param id: l'identifiant de l'entreprise à supprimer
@@ -778,20 +787,20 @@ class Database:
 		:rtype: None
 		"""
 		curseur = self.connexion.cursor()
-		if not self.est_dans_la_base_entreprise(id):
+		if not self.est_deja_existant(nom):
 			return None
-		curseur.execute("DELETE FROM entreprises WHERE id = ?", (id,))
+		curseur.execute("DELETE FROM modeles WHERE nom_modele = ?", (nom,))
 		self.connexion.commit()
 		curseur.close()
 
-    def est_deja_existant(self, nom: str):
-        """
-        """
-        curseur = self.connexion.cursor()
-        curseur.execute("SELECT * FRIL modeles WHERE nom = ?", (nom.lower(), ))
-        resultat = curseur.fetchone()
-        curseur.close()
-        return resultat is not None
+	def est_deja_existant(self, nom: str):
+		"""
+		"""
+		curseur = self.connexion.cursor()
+		curseur.execute("SELECT * FROM modeles WHERE nom_modele = ?", (nom.lower(), ))
+		resultat = curseur.fetchone()
+		curseur.close()
+		return resultat is not None
 
-    
-        
+
+

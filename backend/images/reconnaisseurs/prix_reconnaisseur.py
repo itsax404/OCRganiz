@@ -1,4 +1,4 @@
-from reconnaisseur import Reconnaisseur
+from backend.images.reconnaisseurs.reconnaisseur import Reconnaisseur
 import re
 
 class Prix_Reconnaisseur(Reconnaisseur):

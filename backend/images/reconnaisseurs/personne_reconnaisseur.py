@@ -1,9 +1,6 @@
-from reconnaisseur import Reconnaisseur
+from backend.images.reconnaisseurs.reconnaisseur import Reconnaisseur
 import sys
-sys.path.insert("D:\\Developpement\\Python\\projet-programmation\\backend\\images\\reconnaisseurs")
-
-from personne import Personne
-
+from backend.classes.bases.personne import Personne
 class Personne_Reconnaisseur(Reconnaisseur):
 
 	def __init__(self):

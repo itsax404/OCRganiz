@@ -109,6 +109,8 @@ __pycache__/
 
 facture_*.png
 
+*.env
+
 # Distribution / packaging
 .Python
 build/

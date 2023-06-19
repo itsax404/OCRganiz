@@ -58,3 +58,10 @@ class Entreprise:
 		:rtype: str
 		"""
 		return self.nom
+
+
+	def modifier_nom(self, nom):
+		self.nom = nom
+
+	def modifier_adresse(self, adresse):
+		self.adresse = adresse

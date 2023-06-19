@@ -141,11 +141,13 @@ class Visualisation_pdf(tk.Toplevel):
         :return:
         permet de enregistrer chaque page du pdf en .png
         """
+        if not os.path.isdir(os.path.join(self.parent_dir, "output")):
+            os.mkdir(os.path.join(self.parent_dir, "output"))
         doc = fitz.open(self.path)
         pages = doc.pages()
         images = [page.get_pixmap(dpi=300) for page in pages]
         for img, i in zip(images, range(len(images))):
-            output_path = os.path.join(self.parent_dir, "Config_interface", "output", f"output {i}.png")
+            output_path = os.path.join(self.parent_dir, "output", f"output_{i}.png")
             img.save(output_path)
             self.imgfiles.append(output_path)
 

@@ -159,8 +159,14 @@ def generate_invoice():
 	draw.text((200, 1671), "Cette facture est fausse. Toute correspondence est fortuite.", font=font_warning, fill=(255, 0, 0))
 	return template
 
+if os.path.isdir("factures"):
+	import shutil
+	shutil.rmtree("factures")
+import os
+os.mkdir("factures")
+
 for i in range(100):
 	print(f"Facture n°{i} en génération")
 	template = generate_invoice()
-	template.save(f".\\factures\\facture_{i}.png")
+	template.save(os.path.join(".","factures", f"facture_{i}.pdf"))
 	print(f"Facture n°{i} générée")

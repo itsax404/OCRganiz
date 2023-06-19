@@ -67,3 +67,39 @@ class Adresse:
 		return {"numero_rue": self.numero_rue, "adresse": self.nom_rue, "complement": self.complement,
 		        "boite_postale": self.boite_postale,
 		        "code_postal": self.code_postal, "ville": self.ville, "pays": self.pays}
+
+	def avoir_numero(self):
+		return self.numero_rue
+
+	def avoir_rue(self):
+		return self.nom_rue
+
+	def avoir_boite_postale(self):
+		return self.boite_postale
+
+	def avoir_code_postal(self):
+		return self.code_postal
+
+	def avoir_ville(self):
+		return self.ville
+
+	def avoir_pays(self):
+		return self.pays
+
+	def modifier_numero(self, numero_rue):
+		self.numero_rue = numero_rue
+
+	def modifier_rue(self):
+		self.nom_rue = self.nom_rue
+
+	def modifier_boite_postale(self, boite_postale):
+		self.boite_postale = boite_postale
+
+	def modifier_code_postal(self, code_postal):
+		self.code_postal = code_postal
+
+	def modifier_ville(self, ville):
+		self.ville = ville
+
+	def modifier_pays(self, pays):
+		self.pays = pays

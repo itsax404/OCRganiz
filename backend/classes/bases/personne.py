@@ -47,3 +47,16 @@ class Personne:
 		:rtype: int
 		"""
 		return self.id
+
+
+	def avoir_prenom(self):
+		return self.prenom
+
+	def avoir_nom(self):
+		return self.nom
+
+	def modifier_nom(self, nom):
+		self.nom = nom
+
+	def modifier_prenom(self, prenom):
+		self.prenom = prenom

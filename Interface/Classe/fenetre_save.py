@@ -1,12 +1,15 @@
 import tkinter as tk
 from .Zone_detection import Detection_rect
 import os.path
+from backend.classes.modele import Modele
 class Save_modele(tk.Toplevel):
-    def __init__(self):
+    def __init__(self,type, main_path, database):
         super().__init__(master=None)
         self.title("Visual pdf")
         self.geometry('200x200')
-        self.parent_dir = os.path.join(os.path.realpath(__file__), os.pardir, os.pardir, os.pardir)
+        self.database = database
+        self.parent_dir = main_path
+        self.type = type
         icon_path = os.path.join(self.parent_dir, "lib", 'icon.ico')
         self.iconbitmap(icon_path)
         self.list_rect=[]
@@ -48,32 +51,24 @@ class Save_modele(tk.Toplevel):
 
 
     def save(self):
-        input_text = self.nom_modele.get("1.0", "end-1c")
-        self.ajouter_modele(input_text)
-        nom_fichier = input_text + "_datarect"
-        fichier_path = os.path.join(self.parent_dir, "Config_interface", 'Modèle', nom_fichier)
-        print(fichier_path)
-        self.creation_data_rect(fichier_path)
+        self.creation_data_rect()
 
 
     def ajouter_modele(self, input_text):
-        fichier_path = os.path.join(self.parent_dir, "Config_interface", 'Modèle', 'Modèle_save')
-        fichier_model = open(fichier_path, "w")
-        fichier_model.write("\n" + input_text)
-        fichier_model.close()
+        pass
 
 
-    def creation_data_rect(self, path):
-        fichier_model = open(path, "w")
-        data_rect = []
+    def creation_data_rect(self):
+        input_text = self.nom_modele.get("1.0", "end-1c")
+        nom_fichier = input_text
+        data_rect = [{"nom_modele": nom_fichier, "type": self.type}]
         for rect in self.list_rect:
             dict={"coordonnées":  rect.dimension(),
                   "type": rect.get_id()
                   }
             data_rect.append(dict)
-        print(str(data_rect))
-        fichier_model.write(str(data_rect))
-        fichier_model.close()
+        modele = Modele(data_rect)
+        self.database.ajouter_modele(modele)
 
 
     def extraction_data_rect(self, path):

@@ -74,15 +74,16 @@ class List_selection_rect (tk.Frame):
 
 
     def get_selection_id(self):
-        if self.tree.selection() != ():
+        if len(self.tree.selection()) != 0:
             selected_item = self.tree.selection()[0]
-            parent_id = self.tree.parent(selected_item)
-            if parent_id != "":
+            if self.tree.parent(selected_item) == "":
+                parent_id = selected_item
+            else:
+                parent_id = self.tree.parent(selected_item)
+            if parent_id not in ["personne", "adresse", "entreprise"] :
+                id = selected_item + "." + "flottant"
+                return id
+            elif parent_id != "":
                 id = selected_item
-                print(id)
                 return id
 
-            elif parent_id != "personne" or parent_id != "adresse" or parent_id != "entreprise" :
-                id = selected_item + "." + "flottant"
-                print(id)
-                return id

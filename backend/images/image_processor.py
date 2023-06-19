@@ -20,19 +20,20 @@ class Image_Processor:
 		self.entreprise_reconnaisseur = Entreprise_Reconnaisseur()
 		self.personne_reconnaisseur = Personne_Reconnaisseur()
 
-	def crop(self, coordonnées: tuple[int, int, int, int]) -> Image:
-		image = Image.open(self.image)
-		return image.crop(coordonnées)
+	def crop(self, image, coordonnées: tuple[int, int, int, int]) -> Image:
+		self.image = image
+		image_pillow = Image.open(self.image)
+		return image_pillow.crop(coordonnées)
 
 	def __ocr_cropped_image__(self, image: Image, lang: str = "fra") -> str:
 		pytesseract.pytesseract.tesseract_cmd = self.tesseract_dir
 		return pytesseract.image_to_string(image, lang=lang)
 
 	def __crop_and_ocr__(self, coordonnées: tuple[int, int, int, int], lang: str = "fra") -> str:
-		cropped_image = self.crop(coordonnées)
+		cropped_image = self.crop(self.image, coordonnées)
 		return self.__ocr_cropped_image__(cropped_image, lang=lang)
 
-	def reconnaitre(self, image, coordonnees, objet):
+	def reconnaitre(self, coordonnees, objet):
 		"""
 		coordonnee : [{"coordonnées": (int, int, int, int), "type": "*.*" }]
 		adresse : 'adresse'

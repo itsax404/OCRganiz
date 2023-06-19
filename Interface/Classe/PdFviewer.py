@@ -3,18 +3,19 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 import fitz
-#from backend.images.image_processor import Image_Processor
+from backend.images.image_processor import Image_Processor
 from .Zone_detection import Detection_rect
 from .Tree_selection import List_selection_rect
 from .fenetre_save import Save_modele
 
 class Visualisation_pdf(tk.Toplevel):
-    def __init__(self, master, path, parent_dir):
+    def __init__(self, master, path, parent_dir, database, image_processor):
         super().__init__(master=None)
         self.w, self.h = self.winfo_screenwidth(), self.winfo_screenheight()
         self.title("Visual pdf")
         self.geometry('%sx%s' % (self.w, self.h))
         self.path = path
+        self.database = database
         self.parent_dir = parent_dir
         icon_path = os.path.join(self.parent_dir, "lib", 'icon.ico')
         self.iconbitmap(icon_path)
@@ -23,7 +24,7 @@ class Visualisation_pdf(tk.Toplevel):
         self.canvasscale = 1
         self.pdfimg()
         self.n_img = 0
-
+        self.ip= image_processor
         self.posx = 0
         self.posy = 0
 
@@ -156,14 +157,12 @@ class Visualisation_pdf(tk.Toplevel):
         rect_test = Detection_rect(self.imgscale, self.topx, self.topy, self.botx, self.boty, self.translation_x, self.translation_y, self.n_img, "test")
         n = rect_test.get_nimg()
         output_path = os.path.join(self.imgfiles[n])
-        #ip = Image_Processor(output_path,
-                             #"C:\\Program Files\\Tesseract-OCR\\tesseract.exe")
-        #image_cropped = ip.crop(coordonnées=rect_test.dimension())
-        #height, weight = image_cropped.size
-        #if not (height == 0 or weight == 0):
-            #ip.detecte_adresse(coordonnées=rect_test.dimension())
-            #self.text_test.delete("1.0", "end-1c")
-            #self.text_test.insert(tk.END, ip.__crop_and_ocr__(rect_test.dimension()))
+        image_cropped = self.ip.crop(output_path, coordonnées=rect_test.dimension())
+        height, weight = image_cropped.size
+        if not (height == 0 or weight == 0):
+            adresse = self.ip.reconnaitre( [{"coordonnées": rect_test.dimension(), "type": "adresse"}], None)
+            self.text_test.delete("1.0", "end-1c")
+            self.text_test.insert(tk.END, adresse.avoir_donnees())
 
 
     def get_mouse_posn(self, event):
@@ -274,7 +273,7 @@ class Visualisation_pdf(tk.Toplevel):
             self.canvas.delete(self.rect_debug[i])
 
 
-    def fenetre_save(self):
-        save_fenetre = Save_modele()
+    def fenetre_save(self, ):
+        save_fenetre = Save_modele(self.choix_modèle.get(), self.parent_dir, self.database)
         save_fenetre.set_data_rect(self.list_detection_rect)
         save_fenetre.affichage()

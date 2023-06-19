@@ -106,7 +106,7 @@ class Liste_interface_c (tk.Frame):
     def visualisation(self):
         selected_item = self.tv.selection()[0]
         data = list(self.tv.item(selected_item).get("values"))
-        v_fenetre = Visualisation_pdf(self.master, data[1], self.path)
+        v_fenetre = Visualisation_pdf(self.master, data[1], self.path, self.database, self.image_processor)
         v_fenetre.affichage()
 
 
@@ -118,7 +118,7 @@ class Liste_interface_c (tk.Frame):
 
     def change_type_modele(self):
         selected_item = self.tv.selection()
-        self.tv.item(item= selected_item, values=("test toto", "tom", "Ad"))
+        self.tv.item(item=selected_item, values=("test toto", "tom", "Ad"))
 
 
 

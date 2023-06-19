@@ -3,6 +3,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox, Menu, filedialog
 from .PdFviewer import Visualisation_pdf
 from .Fenetre_def_modèle import Defenir_modele
+from backend.enregistrement import enregistrer
+
+enregistrer(None, None, None)
 class Liste_interface_c (tk.Frame):
     def __init__(self, master, main_path, database, image_processor):
         super().__init__(master)

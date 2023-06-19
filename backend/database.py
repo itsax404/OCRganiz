@@ -39,9 +39,9 @@ class Database:
 			'CREATE TABLE IF NOT EXISTS fiches_paie (id INTEGER PRIMARY KEY AUTOINCREMENT, entreprise INT, '
 			'employe INT, date DATE, revenu_brut DOUBLE, revenu_net DOUBLE, fichier LONGBLOB, FOREIGN KEY (entreprise) '
 			'REFERENCES entreprises(id), FOREIGN KEY (employe) REFERENCES personnes(id) )',
-			'CREATE TABLE IF NOT EXISTS modeles (id INTEGER PRIMARY KEY AUTOINCREMENT,nom_modele TEXT, type TEXT ,'
+			'CREATE TABLE IF NOT EXISTS modeles (nom_modele TEXT PRIMARY KEY, type TEXT ,'
 			'rectangle_x1_1 FLOAT, rectangle_x1_2 FLOAT, rectangley1_1 FLOAT, rectangley1_2 FLOAT, '
-			'utilisation_rectangle1 TEXT,rectangle_x2_1 FLOAT, rectangle_x2_2 FLOAT, rectangley2_1 FLOAT, '
+			'utilisation_rectangle1 TEXT,rectangle_x2_1 FLOAT, rectangle_x2_2 FLOAT, rectangle_y2_1 FLOAT, '
 			'rectangley2_2 FLOAT, utilisation_rectangle2 TEXT,rectangle_x3_1 FLOAT, rectangle_x3_2 FLOAT, '
 			'rectangley3_1 FLOAT, rectangley3_2 FLOAT, utilisation_rectangle3 TEXT,rectangle_x4_1 FLOAT, '
 			'rectangle_x4_2 FLOAT, rectangley4_1 FLOAT, rectangley4_2 FLOAT, utilisation_rectangle4 TEXT,'
@@ -665,7 +665,133 @@ class Database:
 		:rtype: bool
 		"""
 		curseur = self.connexion.cursor()
-		curseur.execute("SELECT * FROM fiches_paie WHERE id = ?", (fiche_paie.avoir_identifiant(),))
+		curseur.execute("SELECT * FROM fiches_paie WHERE id = ?", (id,))
 		resultat = curseur.fetchone()
 		curseur.close()
 		return resultat is not None
+
+	# <============ PARTIE MODELE ============>
+
+    	def ajouter_modele(self, modele: Modele) -> Modele:
+		"""
+		Permet d'ajouter une entreprise dans la base de données
+		Et renvoie un objet "Entreprise" avec l'identifiant de la base de données dans celle-ci
+		:param entreprise: L'entreprise à ajouter
+		:type entreprise: Entreprise
+		:return: l'entreprise avec l'identifiant de la base de données
+		:rtype: Entreprise
+		"""
+		curseur = self.connexion.cursor()
+        if self.est_deja_existant(modele.avoir_nom())
+            return self.avoir_modele(entreprise.avoir_nom())
+        string_bdd = "INSERT INTO modeles ("
+        values = [modele.avoir_nom().lower()]
+        for i, donnee in enumerate(modele.avoir_donnee()):
+        	string_temp = f"rectangle_x{i}_1, rectangle_x{i}_2, rectangle_y{i}_1, rectangle_y{i}_2, utilisation_reactangle{i+1}"
+			if i != (len(modele.avoir_donnee()) - 1):
+				string_temp += ", "
+        	values.append(donnee[f"rectangle_x{i + 1}_1"])        			values.append(donnee[f"rectangle_x{i + 1}_2"])        			values.append(donnee[f"rectangle_y{i + 1}_1"])        
+          	values.append(donnee[f"rectangle_y{i + 1}_2"])
+			values.append(donnee[f"type_{i + 1}]"])
+		string_temp += " VALUES ()"
+		for i in range(len(values)):
+			if i == (len(values) - 1):
+				string_temp += "?)"
+			string_temp += "?,"
+		self.connexion.commit()
+		curseur.close()
+		return modele
+
+	def avoir_entreprise(self, nom: str) -> Entreprise:
+		"""
+		Permet d'avoir une entreprise de la base de données
+		:param id: l'identifiant de l'entreprise
+		:type id: int
+		:return: l'objet Entreprise correspondant à l'identifiant
+		:rtype: Entreprise
+		"""
+		curseur = self.connexion.cursor()
+		curseur.execute("SELECT * FROM entreprises WHERE id = ?", (id,))
+		resultat = curseur.fetchone()
+		if resultat is None:
+			return None
+		adresse = self.avoir_adresse(resultat[2])
+		return Entreprise(resultat[1], adresse, resultat[0])
+
+	def avoir_identifiant_entreprise(self, entreprise: Entreprise) -> int:
+		"""
+		Permet d'avoir l'identifiant d'une entreprise dans la base de données
+		:param entreprise: l'entreprise dont on veut l'identifiant
+		:type entreprise: Entreprise
+		:return: l'identifiant de l'entreprise dans la base de données
+		:rtype: int
+		"""
+		entreprises = self.avoir_toutes_les_entreprises()
+		for entreprise_de_la_base in entreprises:
+			if entreprise_de_la_base == entreprise:
+				return entreprise_de_la_base.avoir_identifiant()
+		return None
+
+	def avoir_toutes_les_entreprises(self) -> list[Entreprise]:
+		"""
+		Permet d'avoir toutes les entreprises de la base de données
+		:return: une liste des entreprises dans la base de données
+		:rtype: list[Entreprise]
+		"""
+		curseur = self.connexion.cursor()
+		curseur.execute("SELECT * FROM entreprises")
+		resultat = curseur.fetchall()
+		entreprises = list()
+		for entreprise in resultat:
+			adresse_classe = self.avoir_adresse(entreprise[2])
+			entreprise_classe = Entreprise(entreprise[1], adresse_classe, entreprise[0])
+			entreprises.append(entreprise_classe)
+		curseur.close()
+		return entreprises
+
+	def modifier_entreprise(self, id: int, nouvelle_entreprise: Entreprise) -> Entreprise:
+		"""
+		Permet de modifier une entreprise dans la base de données
+		:param id: l'identifiant de l'entreprise à modifier
+		:type id: int
+		:param nouvelle_entreprise: l'objet Entreprise avec les nouvelles données
+		:type nouvelle_entreprise: Entreprise
+		:return: l'entreprise modifiée avec l'identifiant fourni
+		:rtype: Entreprise
+		"""
+		if not self.est_dans_la_base_entreprise(id):
+			return None
+		nouvelle_adresse = self.ajouter_adresse(nouvelle_entreprise.avoir_adresse())
+		curseur = self.connexion.cursor()
+		curseur.execute("UPDATE entreprises SET nom = ?, adresse = ? WHERE id = ?",
+		                (nouvelle_entreprise.avoir_nom, nouvelle_adresse.avoir_identifiant(), id))
+		self.connexion.commit()
+		curseur.close()
+		return self.avoir_entreprise(id)
+
+	def supprimer_entreprise(self, id: int) -> None:
+		"""
+		Permet de supprimer une entreprise
+		:param id: l'identifiant de l'entreprise à supprimer
+		:type id: int
+		:return: Rien
+		:rtype: None
+		"""
+		curseur = self.connexion.cursor()
+		if not self.est_dans_la_base_entreprise(id):
+			return None
+		curseur.execute("DELETE FROM entreprises WHERE id = ?", (id,))
+		self.connexion.commit()
+		curseur.close()
+
+    def est_deja_existant(self, nom: str):
+        """
+        """
+        curseur = self.connexion.cursor()
+        curseur.execute("SELECT * FRIL modeles WHERE nom = ?", (nom.lower(), ))
+        resultat = curseur.fetchone()
+        curseur.close()
+        return resultat is not None
+
+    
+        

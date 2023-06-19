@@ -50,6 +50,7 @@ class Image_Processor:
 			nom : 'entreprise.nom'
 			adresse : 'entreprise.adresse'
 		"""
+		self.image = image
 		if objet is None:
 			for coordonnee in coordonnees:
 				type_donnee = coordonnee["type"]

@@ -1,7 +1,7 @@
 import os
 from backend.database import Database
 from backend.images.image_processor import Image_Processor
-from Interface import Interface
+from Interface.Interface import Interface
 
 import dotenv
 

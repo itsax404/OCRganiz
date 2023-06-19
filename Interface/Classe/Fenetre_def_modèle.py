@@ -1,11 +1,12 @@
 import tkinter as tk
 import os.path
 class Defenir_modele(tk.Toplevel):
-    def __init__(self, list):
+    def __init__(self, list, main_path, database):
         super().__init__(master=None)
         self.title("Modèle")
         self.geometry('200x200')
-        self.parent_dir = os.path.join(os.path.realpath(__file__), os.pardir, os.pardir, os.pardir)
+        self.parent_dir = main_path
+        self.database = database
         icon_path = os.path.join(self.parent_dir, "lib", 'icon.ico')
         self.iconbitmap(icon_path)
         self.list = list
@@ -66,11 +67,11 @@ class Defenir_modele(tk.Toplevel):
 
     def changmt_option(self, event):
         newmodele = self.choix_type.get()
-        path = os.path.join(self.parent_dir, "Config_interface", "Modèle", newmodele, "Modèle_save")
-        fichier = open(path, "r")
-        lignes = fichier.readlines()
-        fichier.close()
+        list_modeles = self.database.avoir_tous_les_modeles()
+        lignes = [modele.avoir_nom() for modele in list_modeles]
         print(lignes)
+        if len(lignes) == 0:
+            lignes = ["Aucun modèle"]
         self.str_modele = lignes
         self.update_option_modele()
 

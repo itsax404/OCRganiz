@@ -4,11 +4,13 @@ from tkinter import ttk, messagebox, Menu, filedialog
 from .PdFviewer import Visualisation_pdf
 from .Fenetre_def_modèle import Defenir_modele
 class Liste_interface_c (tk.Frame):
-    def __init__(self, master):
+    def __init__(self, master, main_path, database, image_processor):
         super().__init__(master)
         self.master = master
         self.pack()
-        self.path = os.path.join(os.path.realpath(__file__), os.pardir, os.pardir, os.pardir)
+        self.path = main_path
+        self.database = database
+        self.image_processor = image_processor
 
 
     def affichage(self):
@@ -109,7 +111,7 @@ class Liste_interface_c (tk.Frame):
 
 
     def open_fenetre_modèle(self):
-        self.fenetre_defmodele = Defenir_modele(self)
+        self.fenetre_defmodele = Defenir_modele(self, self.path, self.database)
         self.fenetre_defmodele.affichage()
 
 

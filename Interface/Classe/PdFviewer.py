@@ -19,12 +19,15 @@ class Visualisation_pdf(tk.Toplevel):
         self.parent_dir = parent_dir
         icon_path = os.path.join(self.parent_dir, "lib", 'icon.ico')
         self.iconbitmap(icon_path)
+
         self.imgfiles = []
         self.imgscale = 0.25
         self.canvasscale = 1
         self.pdfimg()
+
         self.n_img = 0
-        self.ip= image_processor
+        self.ip = image_processor
+
         self.posx = 0
         self.posy = 0
 
@@ -231,9 +234,10 @@ class Visualisation_pdf(tk.Toplevel):
         for rect in self.list_detection_rect:
             self.rect_debug.append(self.canvas.create_rectangle(self.topx, self.topy, self.topx, self.topy,
                                                 dash=(2, 2), fill='', outline='blue'))
-            self.canvas.coords(self.rect_debug[i], rect.get_topx(), rect.get_topy(), rect.get_botx(), rect.get_boty())
+            self.canvas.coords(self.rect_debug[i], rect.get_topx()*self.imgscale, rect.get_topy()*self.imgscale, rect.get_botx()*self.imgscale, rect.get_boty()*self.imgscale)
             i += 1
             print(rect.get_id())
+
 
     def new_pos(self, event):
         self.canvas.scan_dragto(event.x, event.y, gain=1)

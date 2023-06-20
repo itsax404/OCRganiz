@@ -76,7 +76,8 @@ class Visualisation_pdf(tk.Toplevel):
         btn_resetmodèle.grid(row=0, column=1)
 
         btn_save = tk.Button(master=frame_save, text="Enregister modèle", command=self.fenetre_save)
-        btn_save.grid(row=0, column=0)
+        btn_save.grid(row=0, column=0, padx=10, pady=10)
+
 
         self.choix_modèle = tk.StringVar()
         self.str_choix = ("Facture", "Fiche de paie")

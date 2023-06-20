@@ -10,7 +10,7 @@ class Liste_interface_c (tk.Frame):
     def __init__(self, master, main_path, database, image_processor):
         super().__init__(master)
         self.master = master
-        self.pack()
+        self.pack(side="top")
         self.path = main_path
         self.database = database
         self.image_processor = image_processor
@@ -19,7 +19,7 @@ class Liste_interface_c (tk.Frame):
     def affichage(self):
 
         self.frame = tk.Frame(master=self.master, borderwidth=5, relief="ridge")
-        self.frame.pack(fill=tk.BOTH)
+        self.frame.pack(side="top")
 
         self.affichage_label_btn()
 
@@ -49,6 +49,8 @@ class Liste_interface_c (tk.Frame):
         btn_visualisation = tk.Button(master=self.file_btn, text="Definir modèle", command=self.open_fenetre_modèle)
         btn_visualisation.grid(row=0, column=3, padx=10, pady=10)
 
+
+
     def affichage_label_list(self):
 
         """
@@ -60,7 +62,7 @@ class Liste_interface_c (tk.Frame):
         self.file_frame.pack(fill=tk.BOTH, padx=10)
 
         #liste
-        self.tv = ttk.Treeview(master=self.file_frame, columns=(1, 2, 3), show='headings', height=3)
+        self.tv = ttk.Treeview(master=self.file_frame, columns=(1, 2, 3), show='headings', height=30)
         self.tv.grid(pady=10, padx=10, row=1, column=0)
 
         self.tv.column(1, width=25)
@@ -84,13 +86,22 @@ class Liste_interface_c (tk.Frame):
         scrollbar.config(command=self.tv.yview)
 
 
-    def add(self, file):
+    def add(self, file: str)->None:
+        """
+        Permet d'ajouter un element de la liste (treeview)
+        :param file: str, correspond à l'adresse d'un fichier
+        :return:None
+        """
         if(file!=None) :
             for newfile in file:
-                self.tv.insert(parent='', index='end', values=(0, newfile, 5))
+                self.tv.insert(parent='', index='end', values=("None", newfile, "None"))
 
 
     def suppr(self):
+        """
+        Permet de supprimer un element de la liste
+        :return: None
+        """
         res = messagebox.askyesno('', 'Voulez-vous vraiment supprimer les fichers?')
         if res == True:
             for selected_item in self.tv.selection():
@@ -99,14 +110,18 @@ class Liste_interface_c (tk.Frame):
 
     def tout_select(self):
         """
-        TODO docstring
-        :return:
+        Selectionne tout les element de la liste
+        :return:None
         """
         for item in self.tv.get_children():
             self.tv.selection_add(item)
 
 
     def visualisation(self):
+        """
+        Permet de ouvrir la fênetre pour visualiser le pdf et editer le modèle
+        :return: None
+        """
         selected_item = self.tv.selection()[0]
         data = list(self.tv.item(selected_item).get("values"))
         v_fenetre = Visualisation_pdf(self.master, data[1], self.path, self.database, self.image_processor)
@@ -114,14 +129,26 @@ class Liste_interface_c (tk.Frame):
 
 
     def open_fenetre_modèle(self):
+        """
+        Ouvre une fênetre pour definir le modèle des elements selectionnés
+        :return: None
+        """
         self.fenetre_defmodele = Defenir_modele(self, self.path, self.database)
         self.fenetre_defmodele.affichage()
 
 
 
-    def change_type_modele(self):
-        selected_item = self.tv.selection()
-        self.tv.item(item=selected_item, values=("test toto", "tom", "Ad"))
+    def change_type_modele(self, type,modèle):
+        """
+        La fonction permet de definir le type et le modèle d'un element
+        :param type: il s'agit d'un str du type du document facture ou fiche de paie
+        :param modèle: str permet de definir le modèle d'un type
+        :return: None
+        """
+        items = self.tv.selection()
+        for selected_item in items:
+            adresse = list(self.tv.item(selected_item).get("values"))[1]
+            self.tv.item(item=selected_item, values=(type, adresse, modèle))
 
 
 
@@ -143,6 +170,10 @@ class Menu_p (tk.Frame):
 
 
     def Openfiles(self):
+        """
+        Permet d'ouvrir une fênetre pour chercher un ficher dans les dossiers de l'utilisateur puis l'ajouter dans la liste
+        :return:
+        """
         filenames = filedialog.askopenfilenames(initialdir="/", title="Select a File",
                                                 filetypes=(("pdf", "*.pdf"), ("all files", "*.*")))
         self.list.add(filenames)

@@ -92,7 +92,6 @@ class Defenir_modele(tk.Toplevel):
         """
         list_modeles = self.database.avoir_tous_les_modeles()
         lignes = [modele.avoir_nom() for modele in list_modeles]
-        print(lignes)
         if len(lignes) == 0:
             lignes = ["Aucun modèle"]
         self.str_modele = lignes

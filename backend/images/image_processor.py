@@ -135,5 +135,4 @@ class Image_Processor:
 				a = os.path.join(path, "output", "output_temp.jpg")
 				if os.path.isfile(a):
 					os.remove(a)
-			print(enseigne)
 			return Facture(acheteur, adresse, enseigne, prix_ht, prix_ttc, date_achat)

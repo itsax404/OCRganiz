@@ -95,21 +95,14 @@ class Adresse_Reconnaisseur(Reconnaisseur):
 	
 	def reconnaitre(self, chaine):
 		liste_valeurs = chaine.split("\n")
-		print(liste_valeurs)
 		for i, valeur in enumerate(liste_valeurs):
 			if self.avoir_cp_ville(valeur) is not None:
-				print(f"a - {valeur}")
 				self.code_postal, self.ville = self.avoir_cp_ville(valeur)
-				print(f"a - {self.code_postal} - {self.ville}")
 			elif self.avoir_bp(valeur) is not None:
-				print(f"b - {valeur}")
 				self.boite_postale = " ".join(list(self.avoir_bp(valeur)))
 			elif self.avoir_numero_adresse(valeur) is not None:
-				print(f"c - {valeur}")
 				self.numero, self.adresse = self.avoir_numero_adresse(valeur)
-				print(f"c - {self.numero} - {self.adresse}")
 			else:
-				print(f"d - {valeur}")
 				self.complement = valeur
     
 	def avoir(self):

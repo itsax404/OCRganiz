@@ -163,7 +163,6 @@ class Liste_interface_c(tk.Frame):
 
                             }
             liste_data.append(dict_données)
-        print(liste_data)
         enregistrer(liste_data, self.database, self.image_processor, self.path)
 
 

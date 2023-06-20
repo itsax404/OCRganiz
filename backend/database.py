@@ -80,7 +80,6 @@ class Database:
 		if self.est_dans_la_base_adresse(adresse.avoir_identifiant()):
 			return self.avoir_adresse(adresse.avoir_identifiant())
 		curseur = self.connexion.cursor()
-		print(adresse.avoir_donnees())
 		curseur.execute(
 			'INSERT INTO adresses (numero, rue, complement, boite_postale, code_postal, ville, pays) VALUES (?, ?, ?, ?, ?, ?, ?)',
 			tuple(adresse.avoir_donnees().values()))
@@ -734,7 +733,6 @@ class Database:
 				donnees_dict["coordonnées"] = tuple(donnees)
 				donnees_dict["type"] = resultat[6 + i * 6]
 				donnees_dict["page"] = resultat[7 + i * 6]
-				print(donnees_dict)
 				liste_donnees.append(donnees_dict)
 		return Modele(liste_donnees)
 	def avoir_tous_les_modeles(self) -> list[Modele]:

@@ -183,7 +183,6 @@ class Visualisation_pdf(tk.Toplevel):
 
         if event.num == 4 or event.delta == 120:
             self.imgscale /= delta
-        print(self.posx, self.posy, self.canvasscale)
         self.update_image()
 
     def update_image(self):
@@ -222,7 +221,6 @@ class Visualisation_pdf(tk.Toplevel):
             self.canvas.coords(self.rect_debug[i], rect.get_topx() * self.imgscale, rect.get_topy() * self.imgscale,
                                rect.get_botx() * self.imgscale, rect.get_boty() * self.imgscale)
             i += 1
-            print(rect.get_id())
 
     def new_pos(self, event):
         self.canvas.scan_dragto(event.x, event.y, gain=1)

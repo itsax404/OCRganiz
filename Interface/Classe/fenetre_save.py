@@ -2,10 +2,11 @@ import json
 import tkinter as tk
 import os.path
 from backend.classes.modele import Modele
+from backend.database import Database
 
 
 class Save_modele(tk.Toplevel):
-    def __init__(self, type: str, main_path: str, database):
+    def __init__(self, type: str, main_path: str, database: Database):
         """
         Ouvre directement une fênetre avec le logo et dimension 200x200
         :param type: type de document facture/fiche de paie
@@ -14,7 +15,7 @@ class Save_modele(tk.Toplevel):
         """
         super().__init__(master=None)
         self.title("Save modèle")
-        self.geometry('200x200')
+        self.geometry('275x200')
         self.database = database
         self.parent_dir = main_path
         self.type = type
@@ -22,7 +23,7 @@ class Save_modele(tk.Toplevel):
         self.iconbitmap(icon_path)
         self.list_rect = []
 
-    def affichage(self):
+    def affichage(self) -> None:
         """
         Affiche toute la partie graphique
         :return:None
@@ -30,7 +31,7 @@ class Save_modele(tk.Toplevel):
         self.affichage_label()
         self.affichage_btn()
 
-    def affichage_label(self):
+    def affichage_label(self) -> None:
         """
         Affichage du texte et de la zone de texte
         :return: None
@@ -44,7 +45,7 @@ class Save_modele(tk.Toplevel):
         self.nom_modele = tk.Text(master=label_frame, height=1, width=20)
         self.nom_modele.grid(row=1, column=2, padx=10, pady=10)
 
-    def affichage_btn(self):
+    def affichage_btn(self) -> None:
         """
         Affichage des boutons pour annuler et sauvegarder
         :return: None
@@ -61,14 +62,14 @@ class Save_modele(tk.Toplevel):
         btn_export = tk.Button(master=btn_frame, text="Export modèle", command=self.exporter)
         btn_export.grid(row=1, column=2, padx=10, pady=10)
 
-    def annuler(self):
+    def annuler(self) -> None:
         """
         Annule la sauvegarde du modèle
         :return:None
         """
         self.destroy()
 
-    def set_data_rect(self, list_rect):
+    def set_data_rect(self, list_rect) -> None:
         """
         permet de recuperer une liste de réctangles
         :param list_rect: list de Detection_rect
@@ -76,7 +77,7 @@ class Save_modele(tk.Toplevel):
         """
         self.list_rect = list_rect
 
-    def save(self):
+    def save(self) -> None:
         """
         sauvegarde du modèle
         :return: None
@@ -84,7 +85,7 @@ class Save_modele(tk.Toplevel):
         self.ajouter_bdd()
         self.destroy()
 
-    def creation_data_rect(self):
+    def creation_data_rect(self) -> None:
         """
         Permet la création d'une liste de coordonnées sous la forme de:
         [{"nom_modele": nom_modele, "type": self.type},
@@ -108,8 +109,7 @@ class Save_modele(tk.Toplevel):
 
         return data_rect
 
-
-    def ajouter_bdd(self):
+    def ajouter_bdd(self) -> None:
         """
         Fonction pour ajouter un modèle dans la BDD
         :return: None
@@ -118,7 +118,7 @@ class Save_modele(tk.Toplevel):
         modele = Modele(data_rect)
         self.database.ajouter_modele(modele)
 
-    def exporter(self):
+    def exporter(self) -> None:
         """
         Permet d'exporter les coordonnées dans un fichier .modele
         :return: None
@@ -131,4 +131,3 @@ class Save_modele(tk.Toplevel):
         fichier.write(json.dumps(data_rect, indent=4))
         fichier.close()
         self.destroy()
-

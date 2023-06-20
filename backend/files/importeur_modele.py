@@ -1,11 +1,16 @@
 import os
-import json
 from backend.classes.modele import Modele
+from backend.database import Database
 
 
 class Importateur():
 
-	def __init__(self, path, database):
+	def __init__(self, path: str, database: Database):
+		"""
+
+		:param path:
+		:param database:
+		"""
 		self.database = database
 		self.modele_dir = os.path.join(path, "modeles")
 		if not os.path.isdir(self.modele_dir):

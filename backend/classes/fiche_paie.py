@@ -62,5 +62,12 @@ class Fiche_Paie:
         """
         return (self.entreprise == other.entreprise) and (self.employé == other.employé) and (self.date == other.date) and (self.revenu_brut == other.revenu_brut) and (self.revenu_net == other.revenu_net)
 
-    def modifier_fichier(self, fichier):
+    def modifier_fichier(self, fichier: bytes) -> None:
+        """
+        Permet de modifier le fichier de la fiche de paie.
+        :param fichier: le fichier de la fiche de paie
+        :type fichier: bytes
+        :return: Rien
+        :rtype: None
+        """
         self.fichier = fichier

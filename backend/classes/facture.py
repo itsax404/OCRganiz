@@ -69,5 +69,12 @@ class Facture:
 		return (self.acheteur == other.acheteur) and (self.adresse_acheteur == other.adresse_acheteur) and (self.enseigne == other.enseigne) and (self.prix_ht == other.prix_ht) and (self.prix_ttc == other.prix_ttc) and (self.date_achat == other.date_achat) and (self.fichier == other.fichier)
 
 
-	def modifier_fichier(self, fichier):
+	def modifier_fichier(self, fichier: bytes) -> None:
+		"""
+		Pour modifier le fichier de la facture
+		:param fichier: le nouveau fichier
+		:type fichier: bytes
+		:return: Rien
+		:rtype: None
+		"""
 		self.fichier = fichier

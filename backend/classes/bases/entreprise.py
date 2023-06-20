@@ -3,7 +3,7 @@ from backend.classes.bases.adresse import Adresse
 
 class Entreprise:
 
-	def __init__(self, nom: str, adresse: Adresse, id: int = -1) -> None:
+	def __init__(self, nom: str = None, adresse: Adresse = None, id: int = -1) -> None:
 		"""
 		Permet de créer un objet "Entreprise" qui contient les informations d'une entreprise
 		:param nom: nom de l'entreprise

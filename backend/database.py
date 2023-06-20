@@ -41,26 +41,26 @@ class Database:
 			'REFERENCES entreprises(id), FOREIGN KEY (employe) REFERENCES personnes(id) )',
 			'CREATE TABLE IF NOT EXISTS modeles (nom_modele TEXT PRIMARY KEY, type TEXT ,'
 			'rectangle_x1_1 FLOAT, rectangle_x1_2 FLOAT, rectangle_y1_1 FLOAT, rectangle_y1_2 FLOAT, '
-			'utilisation_rectangle1 TEXT,rectangle_x2_1 FLOAT, rectangle_x2_2 FLOAT, rectangle_y2_1 FLOAT, '
-			'rectangle_y2_2 FLOAT, utilisation_rectangle2 TEXT,rectangle_x3_1 FLOAT, rectangle_x3_2 FLOAT, '
-			'rectangle_y3_1 FLOAT, rectangle_y3_2 FLOAT, utilisation_rectangle3 TEXT,rectangle_x4_1 FLOAT, '
-			'rectangle_x4_2 FLOAT, rectangle_y4_1 FLOAT, rectangle_y4_2 FLOAT, utilisation_rectangle4 TEXT,'
+			'utilisation_rectangle1 TEXT, page_rectangle1 INTEGER,rectangle_x2_1 FLOAT, rectangle_x2_2 FLOAT, rectangle_y2_1 FLOAT, '
+			'rectangle_y2_2 FLOAT, utilisation_rectangle2 TEXT, page_rectangle2 INTEGER, rectangle_x3_1 FLOAT, rectangle_x3_2 FLOAT, '
+			'rectangle_y3_1 FLOAT, rectangle_y3_2 FLOAT, utilisation_rectangle3 TEXT, page_rectangle3 INTEGER, rectangle_x4_1 FLOAT, '
+			'rectangle_x4_2 FLOAT, rectangle_y4_1 FLOAT, rectangle_y4_2 FLOAT, utilisation_rectangle4 TEXT, page_rectangle4 INTEGER,'
 			'rectangle_x5_1 FLOAT, rectangle_x5_2 FLOAT, rectangle_y5_1 FLOAT, rectangle_y5_2 FLOAT, '
-			'utilisation_rectangle5 TEXT,rectangle_x6_1 FLOAT, rectangle_x6_2 FLOAT, rectangle_y6_1 FLOAT, '
-			'rectangle_y6_2 FLOAT, utilisation_rectangle6 TEXT,rectangle_x7_1 FLOAT, rectangle_x7_2 FLOAT, '
-			'rectangle_y7_1 FLOAT, rectangle_y7_2 FLOAT, utilisation_rectangle7 TEXT,rectangle_x8_1 FLOAT, '
-			'rectangle_x8_2 FLOAT, rectangle_y8_1 FLOAT, rectangle_y8_2 FLOAT, utilisation_rectangle8 TEXT,'
+			'utilisation_rectangle5 TEXT, page_rectangle5 INTEGER,rectangle_x6_1 FLOAT, rectangle_x6_2 FLOAT, rectangle_y6_1 FLOAT, '
+			'rectangle_y6_2 FLOAT, utilisation_rectangle6 TEXT, page_rectangle6 INTEGER, rectangle_x7_1 FLOAT, rectangle_x7_2 FLOAT, '
+			'rectangle_y7_1 FLOAT, rectangle_y7_2 FLOAT, utilisation_rectangle7 TEXT, page_rectangle7 INTEGER, rectangle_x8_1 FLOAT, '
+			'rectangle_x8_2 FLOAT, rectangle_y8_1 FLOAT, rectangle_y8_2 FLOAT, utilisation_rectangle8 TEXT, page_rectangle8 INTEGER,'
 			'rectangle_x9_1 FLOAT, rectangle_x9_2 FLOAT, rectangle_y9_1 FLOAT, rectangle_y9_2 FLOAT, '
-			'utilisation_rectangle9 TEXT,rectangle_x10_1 FLOAT, rectangle_x10_2 FLOAT, rectangle_y10_1 FLOAT, '
-			'rectangle_y10_2 FLOAT, utilisation_rectangle10 TEXT,rectangle_x11_1 FLOAT, rectangle_x11_2 FLOAT, '
-			'rectangle_y11_1 FLOAT, rectangle_y11_2 FLOAT, utilisation_rectangle11 TEXT,rectangle_x12_1 FLOAT, '
-			'rectangle_x12_2 FLOAT, rectangle_y12_1 FLOAT, rectangle_y12_2 FLOAT, utilisation_rectangle12 TEXT,'
+			'utilisation_rectangle9 TEXT, page_rectangle9 INTEGER, rectangle_x10_1 FLOAT, rectangle_x10_2 FLOAT, rectangle_y10_1 FLOAT, '
+			'rectangle_y10_2 FLOAT, utilisation_rectangle10 TEXT, page_rectangle10 INTEGER,rectangle_x11_1 FLOAT, rectangle_x11_2 FLOAT, '
+			'rectangle_y11_1 FLOAT, rectangle_y11_2 FLOAT, utilisation_rectangle11 TEXT, page_rectangle11 INTEGER, rectangle_x12_1 FLOAT, '
+			'rectangle_x12_2 FLOAT, rectangle_y12_1 FLOAT, rectangle_y12_2 FLOAT, utilisation_rectangle12 TEXT, page_rectangle12 INTEGER,'
 			'rectangle_x13_1 FLOAT, rectangle_x13_2 FLOAT, rectangle_y13_1 FLOAT, rectangle_y13_2 FLOAT, '
-			'utilisation_rectangle13 TEXT,rectangle_x14_1 FLOAT, rectangle_x14_2 FLOAT, rectangle_y14_1 FLOAT, '
-			'rectangle_y14_2 FLOAT, utilisation_rectangle14 TEXT,rectangle_x15_1 FLOAT, rectangle_x15_2 FLOAT, rectangle_y15_1 FLOAT, '
-			'rectangle_y15_2 FLOAT, utilisation_rectangle15 TEXT,rectangle_x16_1 FLOAT, rectangle_x16_2 FLOAT, rectangle_y16_1 FLOAT, '
-			'rectangle_y16_2 FLOAT, utilisation_rectangle16 TEXT,rectangle_x17_1 FLOAT, rectangle_x17_2 FLOAT, rectangle_y17_1 FLOAT, '
-			'rectangle_y17_2 FLOAT, utilisation_rectangle17 TEXT)'
+			'utilisation_rectangle13 TEXT,page_rectangle13 INTEGER, rectangle_x14_1 FLOAT, rectangle_x14_2 FLOAT, rectangle_y14_1 FLOAT, '
+			'rectangle_y14_2 FLOAT, utilisation_rectangle14 TEXT,page_rectangle14 INTEGER,rectangle_x15_1 FLOAT, rectangle_x15_2 FLOAT, rectangle_y15_1 FLOAT, '
+			'rectangle_y15_2 FLOAT, utilisation_rectangle15 TEXT,page_rectangle15 INTEGER,rectangle_x16_1 FLOAT, rectangle_x16_2 FLOAT, rectangle_y16_1 FLOAT, '
+			'rectangle_y16_2 FLOAT, utilisation_rectangle16 TEXT,page_rectangle16 INTEGER,rectangle_x17_1 FLOAT, rectangle_x17_2 FLOAT, rectangle_y17_1 FLOAT, '
+			'rectangle_y17_2 FLOAT, utilisation_rectangle17 TEXT, page_rectangle17 INTEGER)'
 		]
 		for instruction in instructions_sql:
 			curseur.execute(instruction)
@@ -689,9 +689,8 @@ class Database:
 			return self.avoir_modele(modele.avoir_nom())
 		string_bdd = "INSERT INTO modeles (nom_modele, type, "
 		values = [modele.avoir_nom().lower(), "facture"]
-		test = 2
 		for i, donnee in enumerate(modele.avoir_donnees()):
-			string_bdd+= f"rectangle_x{i + 1}_1, rectangle_x{i + 1}_2, rectangle_y{i + 1}_1, rectangle_y{i + 1}_2, utilisation_rectangle{i+1}"
+			string_bdd+= f"rectangle_x{i + 1}_1, rectangle_x{i + 1}_2, rectangle_y{i + 1}_1, rectangle_y{i + 1}_2, utilisation_rectangle{i+1}, page_rectangle{i+1}"
 			if i != (len(modele.avoir_donnees()) - 1):
 				string_bdd += ", "
 			values.append(donnee[f"rectangle_x{i + 1}_1"])
@@ -699,7 +698,7 @@ class Database:
 			values.append(donnee[f"rectangle_y{i + 1}_1"])
 			values.append(donnee[f"rectangle_y{i + 1}_2"])
 			values.append(donnee[f"utilisation_rectangle{i + 1}"])
-			test += 5
+			values.append(donnee[f"page_rectangle{i + 1}"])
 		string_bdd += ") VALUES ("
 		for i in range(len(values)):
 			if i == (len(values)-1):
@@ -721,18 +720,19 @@ class Database:
 		if resultat is None:
 			return None
 		curseur.close()
-		nombre_rectangle = (len(resultat) - 3) // 5
+		nombre_rectangle = (len(resultat) - 3) // 6
 		liste_donnees = [{"nom_modele": resultat[0], "type": resultat[1]}]
 		for i in range(nombre_rectangle):
 			donnees_dict = dict()
 			donnees = list()
-			donnees.append(resultat[2 + i * 5])
-			donnees.append(resultat[3 + i * 5])
-			donnees.append(resultat[4 + i * 5])
-			donnees.append(resultat[5 + i * 5])
-			donnees.append(resultat[6 + i * 5])
+			donnees.append(resultat[2 + i * 6])
+			donnees.append(resultat[3 + i * 6])
+			donnees.append(resultat[4 + i * 6])
+			donnees.append(resultat[5 + i * 6])
+			donnees.append(resultat[6 + i * 6])
 			donnees_dict["coordonnées"] = tuple(donnees)
-			donnees_dict["type"] = resultat[7 + i * 5]
+			donnees_dict["type"] = resultat[7 + i * 6]
+			donnees_dict["page"] = resultat[8 + i * 6]
 			liste_donnees.append(donnees_dict)
 		return Modele(liste_donnees)
 	def avoir_tous_les_modeles(self) -> list[Modele]:
@@ -746,18 +746,19 @@ class Database:
 		resultats = curseur.fetchall()
 		modeles = list()
 		for resultat in resultats:
-			nombre_rectangle = (len(resultat) - 3) // 5
+			nombre_rectangle = (len(resultat) - 3) // 6
 			liste_donnees = [{"nom_modele": resultat[0], "type": resultat[1]}]
 			for i in range(nombre_rectangle):
 				donnees_dict = dict()
 				donnees = list()
-				donnees.append(resultat[2 + i * 5])
-				donnees.append(resultat[3 + i * 5])
-				donnees.append(resultat[4 + i * 5])
-				donnees.append(resultat[5 + i * 5])
-				donnees.append(resultat[6 + i * 5])
+				donnees.append(resultat[2 + i * 6])
+				donnees.append(resultat[3 + i * 6])
+				donnees.append(resultat[4 + i * 6])
+				donnees.append(resultat[5 + i * 6])
+				donnees.append(resultat[6 + i * 6])
 				donnees_dict["coordonnées"] = tuple(donnees)
-				donnees_dict["type"] = resultat[7 + i * 5]
+				donnees_dict["type"] = resultat[7 + i * 6]
+				donnees_dict["page"] = resultat[8 + i * 6]
 				liste_donnees.append(donnees_dict)
 			modeles.append(Modele(liste_donnees))
 		return modeles

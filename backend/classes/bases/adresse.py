@@ -1,6 +1,6 @@
 class Adresse:
 
-	def __init__(self, numero_rue: str, nom_rue: str, code_postal: int, ville: str, pays: str, complement=None,
+	def __init__(self, numero_rue: str = None, nom_rue: str = None, code_postal: str = None, ville: str = None, pays: str = None, complement=None,
 	             boite_postale=None, id: int = -1) -> None:
 		"""
 		Permet créer un objet `Adresse` qui contient les informations d'une adresse postale.
@@ -98,6 +98,8 @@ class Adresse:
 	def modifier_code_postal(self, code_postal):
 		self.code_postal = code_postal
 
+	def modifier_complement(self, complement):
+		self.complement = complement
 	def modifier_ville(self, ville):
 		self.ville = ville
 

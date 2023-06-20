@@ -7,7 +7,7 @@ from .bases.adresse import Adresse
 class Facture:
 
 	def __init__(self, acheteur: Personne, adresse: Adresse, enseigne: Entreprise, prix_ht: float, prix_ttc: float,
-	             date_achat: datetime.date, fichier: bytes, id: int =-1) -> None:
+	             date_achat: datetime.date, fichier: bytes = None, id: int =-1) -> None:
 		"""
 		Permet de créer un objet "Facture"
 		:param acheteur: L'acheteur de la facture
@@ -67,3 +67,7 @@ class Facture:
 		:rtype: bool
 		"""
 		return (self.acheteur == other.acheteur) and (self.adresse_acheteur == other.adresse_acheteur) and (self.enseigne == other.enseigne) and (self.prix_ht == other.prix_ht) and (self.prix_ttc == other.prix_ttc) and (self.date_achat == other.date_achat) and (self.fichier == other.fichier)
+
+
+	def modifier_fichier(self, fichier):
+		self.fichier = fichier

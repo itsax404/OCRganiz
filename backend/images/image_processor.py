@@ -1,6 +1,10 @@
+import datetime
+
 from PIL import Image
 import pytesseract
 
+from backend.classes import Facture
+from backend.classes.bases import Personne
 from backend.classes.bases.adresse import Adresse
 from backend.classes.bases.entreprise import Entreprise
 
@@ -33,9 +37,9 @@ class Image_Processor:
 		cropped_image = self.crop(self.image, coordonnées)
 		return self.__ocr_cropped_image__(cropped_image, lang=lang)
 
-	def reconnaitre(self, coordonnees, objet):
+	def reconnaitre(self, images, coordonnees, type):
 		"""
-		coordonnee : [{"coordonnées": (int, int, int, int), "type": "*.*" }]
+		coordonnee : [{"coordonnées": (int, int, int, int), "type": "*.*" , "page": int}]
 		adresse : 'adresse'
 			numéro de rue : 'adresse.numero'
 			rue : 'adresse.rue'
@@ -51,148 +55,73 @@ class Image_Processor:
 			nom : 'entreprise.nom'
 			adresse : 'entreprise.adresse'
 		"""
-		self.image = image
-		if objet is None:
+		if type == "facture":
+			acheteur = Personne()
+			adresse = Adresse()
+			enseigne = Entreprise()
+			prix_ht = 0.0
+			prix_ttc = 0.0
+			date_achat = None
 			for coordonnee in coordonnees:
-				type_donnee = coordonnee["type"]
-				sous_partie = list(type_donnee.split("."))
-				if len(sous_partie) == 1:
-					match type_donnee:
-						case "adresse":
-							self.adresse_reconnaisseur.reconnaitre(self.__crop_and_ocr__(coordonnee["coordonnées"]))
-							return self.adresse_reconnaisseur.avoir()
-						case "entreprise":
-							self.entreprise_reconnaisseur.reconnaitre(self.__crop_and_ocr__(coordonnee["coordonnées"]))
-							return self.entreprise_reconnaisseur.avoir()
-						case "personne":
-							self.personne_reconnaisseur.reconnaitre(self.__crop_and_ocr__(coordonnee["coordonnées"]))
-							return self.personne_reconnaisseur.avoir()
-						case "flottant":
-							self.prix_reconnaisseur.reconnaitre(self.__crop_and_ocr__(coordonnee["coordonnées"]))
-							return self.prix_reconnaisseur.avoir()
-				else:
-					raise ValueError("Il faut spécifier un objet pour le modifier")
-
-		else:
-			for coordonnee in coordonnees:
-				type_donnee = coordonnee["type"]
-				sous_parties = list(type_donnee.split("."))
+				page = coordonnee["page"]
+				self.image = images[page-1]
+				sous_parties = [partie for partie in coordonnee["type"].split(".") if partie != ""]
+				coords = coordonnee["coordonnées"]
 				if len(sous_parties) == 1:
-					match type_donnee:
-						case "adresse":
-							self.adresse_reconnaisseur.reconnaitre(self.__crop_and_ocr__(coordonnee["coordonnées"]))
-							return self.adresse_reconnaisseur.avoir()
-						case "entreprise":
-							self.entreprise_reconnaisseur.reconnaitre(self.__crop_and_ocr__(coordonnee["coordonnées"]))
-							return self.entreprise_reconnaisseur.avoir()
-						case "personne":
-							self.personne_reconnaisseur.reconnaitre(self.__crop_and_ocr__(coordonnee["coordonnées"]))
-							return self.personne_reconnaisseur.avoir()
-						case "flottant":
-							self.prix_reconnaisseur.reconnaitre(self.__crop_and_ocr__(coordonnee["coordonnées"]))
-							return self.prix_reconnaisseur.avoir()
-				elif len(sous_parties) == 2:
-					if (sous_parties[0] == "adresse") and (type(objet) == Adresse):
-						adresse = objet
-						match sous_parties[1]:
-							case "numero":
-								self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-								nv_numero = self.adresse_reconnaisseur.avoir().avoir_numero()
-								adresse.modifier_numero(nv_numero)
-								return adresse
-							case "rue":
-								self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-								nvlle_rue = self.adresse_reconnaisseur.avoir().avoir_rue()
-								adresse.modifier_rue(nvlle_rue)
-								return adresse
-							case "boite_postale":
-								self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-								nvlle_boite = self.adresse_reconnaisseur.avoir().avoir_boite_postale()
-								adresse.modifier_boite_postale(nvlle_boite)
-								return adresse
-							case "code_postal":
-								self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-								nv_cp = self.adresse_reconnaisseur.avoir().avoir_code_postal()
-								adresse.modifier_code_postal(nv_cp)
-								return adresse
-							case "ville":
-								self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-								nvlle_ville = self.adresse_reconnaisseur.avoir().avoir_ville()
-								adresse.modifier_ville(nvlle_ville)
-								return adresse
-							case "pays":
-								self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-								nv_pays = self.adresse_reconnaisseur.avoir().avoir_pays()
-								adresse.modifier_pays(nv_pays)
-								return adresse
-
-					elif (sous_parties[0] == "entreprise") and (type(objet) == Entreprise):
-						entreprise = objet
-						match sous_parties[1]:
-							case "nom":
-								self.entreprise_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-								nv_nom = self.entreprise_reconnaisseur.avoir().avoir_nom()
-								entreprise.modifier_nom(nv_nom)
-								return entreprise
-							case "adresse":
-								self.adresse_reconnaisseur.reconnaitre(self.__crop_and_ocr__(coordonnee["coordonnées"]))
-								return self.adresse_reconnaisseur.avoir()
-					elif (sous_parties[0] == "personne") and (type(objet) == Entreprise):
-						personne = objet
-						match sous_parties[1]:
-							case "nom":
-								self.entreprise_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-								nv_nom = self.entreprise_reconnaisseur.avoir().avoir_nom()
-								personne.modifier_nom(nv_nom)
-								return personne
-							case "prenom":
-								self.entreprise_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-								nv_prenom = self.entreprise_reconnaisseur.avoir().avoir_prenom()
-								personne.modifier_prenom(nv_prenom)
-								return personne
-					else:
-						raise ValueError("L'objet fourni ne correspond pas à la valeur à modifier")
-
-				elif len(sous_parties) == 3:
-					if (sous_parties[0] != "entreprise") or (sous_parties[1] != "adresse"):
-						raise ValueError("Mauvais identifiant de valeur fourni")
-					if type(objet) != Entreprise:
-						raise ValueError("L'objet fournir ne correspond aux valeurs à reconnaître")
-					adresse = objet.avoir_adresse()
+					return None
+				if sous_parties[0] == "adresse":
 					match sous_parties[1]:
 						case "numero":
-							self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-							nv_numero = self.adresse_reconnaisseur.avoir().avoir_numero()
-							adresse.modifier_numero(nv_numero)
-							entreprise.modifier_adresse(adresse)
-							return entreprise
+							adresse.modifier_numero(self.__crop_and_ocr__(coords))
 						case "rue":
-							self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-							nvlle_rue = self.adresse_reconnaisseur.avoir().avoir_rue()
-							adresse.modifier_rue(nvlle_rue)
-							entreprise.modifier_adresse(adresse)
-							return entreprise
+							adresse.modifier_rue(self.__crop_and_ocr__(coords))
+						case "complement":
+							adresse.modifier_complement(self.__crop_and_ocr__(coords))
 						case "boite_postale":
-							self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-							nvlle_boite = self.adresse_reconnaisseur.avoir().avoir_boite_postale()
-							adresse.modifier_boite_postale(nvlle_boite)
-							entreprise.modifier_adresse(adresse)
-							return entreprise
-						case "code_postal":
-							self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-							nv_cp = self.adresse_reconnaisseur.avoir().avoir_code_postal()
-							adresse.modifier_code_postal(nv_cp)
-							entreprise.modifier_adresse(adresse)
-							return entreprise
+							adresse.modifier_boite_postale(self.__crop_and_ocr__(coords))
+						case "code postal":
+							adresse.modifier_code_postal(self.__crop_and_ocr__(coords))
 						case "ville":
-							self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-							nvlle_ville = self.adresse_reconnaisseur.avoir().avoir_ville()
-							adresse.modifier_ville(nvlle_ville)
-							entreprise.modifier_adresse(adresse)
-							return entreprise
+							adresse.modifier_ville(self.__crop_and_ocr__(coords))
 						case "pays":
-							self.adresse_reconnaisseur.reconnaitre(coordonnee["coordonnees"])
-							nv_pays = self.adresse_reconnaisseur.avoir().avoir_pays()
-							adresse.modifier_pays(nv_pays)
-							entreprise.modifier_adresse(adresse)
-							return entreprise
+							adresse.modifier_pays(self.__crop_and_ocr__(coords))
+				elif sous_parties[0] == "personne":
+					match sous_parties[1]:
+						case "nom":
+							acheteur.modifier_nom(self.__crop_and_ocr__(coords))
+						case "prenom":
+							acheteur.modifier_prenom(self.__crop_and_ocr__(coords))
+
+				elif sous_parties[0] == "entreprise":
+					if len(sous_parties) == 3:
+						if sous_parties[1] == "adresse":
+							match sous_parties[2]:
+								case "numero":
+									enseigne.avoir_adresse().modifier_numero(self.__crop_and_ocr__(coords))
+								case "rue":
+									enseigne.avoir_adresse().modifier_rue(self.__crop_and_ocr__(coords))
+								case "complement":
+									enseigne.avoir_adresse().modifier_complement(self.__crop_and_ocr__(coords))
+								case "boite_postale":
+									enseigne.avoir_adresse().modifier_boite_postale(self.__crop_and_ocr__(coords))
+								case "code postal":
+									enseigne.avoir_adresse().modifier_code_postal(self.__crop_and_ocr__(coords))
+								case "ville":
+									enseigne.avoir_adresse().modifier_ville(self.__crop_and_ocr__(coords))
+								case "pays":
+									enseigne.avoir_adresse().modifier_pays(self.__crop_and_ocr__(coords))
+					if len(sous_parties) == 2:
+						if sous_parties[1] == "nom":
+							enseigne.modifier_nom(self.__crop_and_ocr__(coords))
+				elif sous_parties[0] == "date_achat":
+					date_achat = datetime.datetime.strptime(self.__crop_and_ocr__(coords), "%d/%m/%Y")
+
+				elif sous_parties[0] == "prix_ht" or sous_parties[0] == "prix_ttc":
+					if sous_parties[0] == "prix_ht":
+						prix_ht = float(self.__crop_and_ocr__(coords))
+					else:
+						prix_ttc = float(self.__crop_and_ocr__(coords))
+				else:
+					raise ValueError("Erreur")
+
+			return Facture(acheteur, adresse, enseigne, prix_ht, prix_ttc, date_achat)

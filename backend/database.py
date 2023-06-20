@@ -677,12 +677,12 @@ class Database:
 
 	def ajouter_modele(self, modele: Modele) -> Modele:
 		"""
-		Permet d'ajouter une entreprise dans la base de données
-		Et renvoie un objet "Entreprise" avec l'identifiant de la base de données dans celle-ci
-		:param entreprise: L'entreprise à ajouter
-		:type entreprise: Entreprise
-		:return: l'entreprise avec l'identifiant de la base de données
-		:rtype: Entreprise
+		Permet d'ajouter un modèle dans la base de données
+		Et renvoie un objet "Modèle"
+		:param modele: Le modèle à ajouter
+		:type modele: Modele
+		:return: le modèle ajouté dans la base de données
+		:rtype: Modele
 		"""
 		curseur = self.connexion.cursor()
 		if self.est_deja_existant(modele.avoir_nom()):
@@ -712,7 +712,11 @@ class Database:
 
 	def avoir_modele(self, nom: str) -> Modele:
 		"""
-		TODO
+		Permet d'avoir un modèle de la base de données
+		:param nom: le nom du modèle
+		:type nom: str
+		:return: le modèle
+		:rtype: Modele
 		"""
 		curseur = self.connexion.cursor()
 		curseur.execute("SELECT * FROM modeles WHERE nom_modele = ?", (nom,))
@@ -737,9 +741,9 @@ class Database:
 		return Modele(liste_donnees)
 	def avoir_tous_les_modeles(self) -> list[Modele]:
 		"""
-		Permet d'avoir toutes les entreprises de la base de données
-		:return: une liste des entreprises dans la base de données
-		:rtype: list[Entreprise]
+		Permet d'avoir toutes les modèles de la base de données
+		:return: une liste des modèles dans la base de données
+		:rtype: list[Modele]
 		"""
 		curseur = self.connexion.cursor()
 		curseur.execute("SELECT * FROM modeles")
@@ -765,13 +769,13 @@ class Database:
 
 	def modifier_modele(self, nom: str, modele: Modele) -> Modele:
 		"""
-		Permet de modifier une entreprise dans la base de données
-		:param id: l'identifiant de l'entreprise à modifier
-		:type id: int
-		:param nouvelle_entreprise: l'objet Entreprise avec les nouvelles données
-		:type nouvelle_entreprise: Entreprise
-		:return: l'entreprise modifiée avec l'identifiant fourni
-		:rtype: Entreprise
+		Permet de modifier une modèle dans la base de données
+		:param nom: le nom du modèle à modifier
+		:type nom: str
+		:param modele: le modèle avec les modifications
+		:type modele: Modele
+		:return: le modèle modifié
+		:rtype: Modele
 		"""
 		if not self.est_deja_existant(nom):
 			return None
@@ -781,9 +785,9 @@ class Database:
 
 	def supprimer_modele(self, nom: str) -> None:
 		"""
-		Permet de supprimer une entreprise
-		:param id: l'identifiant de l'entreprise à supprimer
-		:type id: int
+		Permet de supprimer un modèle de la base de données
+		:param nom: le nom du modèle à supprimer
+		:type nom: str
 		:return: Rien
 		:rtype: None
 		"""
@@ -794,8 +798,13 @@ class Database:
 		self.connexion.commit()
 		curseur.close()
 
-	def est_deja_existant(self, nom: str):
+	def est_deja_existant(self, nom: str) -> bool:
 		"""
+		Permet de vérifier si le nom est déjà utilisé
+		:param nom: le nom à vérifier
+		:type nom: str
+		:return: True si le nom est déjà utilisé, False sinon
+		:rtype: bool
 		"""
 		curseur = self.connexion.cursor()
 		curseur.execute("SELECT * FROM modeles WHERE nom_modele = ?", (nom.lower(), ))
@@ -803,7 +812,12 @@ class Database:
 		curseur.close()
 		return resultat is not None
 
-	def avoir_tous_les_fichiers(self):
+	def avoir_tous_les_fichiers(self) -> list[Facture | Fiche_Paie]:
+		"""
+		Permet d'avoir tous les fichiers
+		:return: la liste de tous les fiches de paie et factures enregistrées dans la base de données
+		:rtype: list[Facture | Fiche_Paie]
+		"""
 		liste_factures = self.avoir_toutes_les_factures()
 		liste_fiche = self.avoir_toutes_les_fiches_de_paie()
 		return liste_fiche + liste_factures

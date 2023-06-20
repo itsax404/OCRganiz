@@ -49,14 +49,33 @@ class Personne:
 		return self.id
 
 
-	def avoir_prenom(self):
+	def avoir_prenom(self) -> None:
+		"""
+		Permet d'obtenir le prénom de l'objet "Personne"
+		:return: Le prénom de l'objet "Personne"
+		:rtype: str
+		"""
 		return self.prenom
 
-	def avoir_nom(self):
+	def avoir_nom(self) -> None:
 		return self.nom
 
-	def modifier_nom(self, nom):
+	def modifier_nom(self, nom: str) -> None:
+		"""
+		Permet de modifier le nom de l'objet "Personne"
+		:param nom: Le nom de l'objet "Personne"
+		:type nom: str
+		:return: Rien
+		:rtype: None
+		"""
 		self.nom = nom
 
-	def modifier_prenom(self, prenom):
+	def modifier_prenom(self, prenom: str) -> None:
+		"""
+		Permet de modifier le prénom de l'objet "Personne"
+		:param prenom: Le prénom de l'objet "Personne"
+		:type prenom: str
+		:return: Rien
+		:rtype: None
+		"""
 		self.prenom = prenom

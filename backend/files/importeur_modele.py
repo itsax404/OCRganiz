@@ -1,21 +1,27 @@
 import os
-import json
 from backend.classes.modele import Modele
+from backend.database import Database
 
 
 class Importateur():
 
-	def __init__(self, path, database):
+	def __init__(self, path: str, database: Database) -> None:
+		"""
+		Permet d'importer les modèles du dossier 'modele'
+		:param path: Le chemin de la racine du projet
+		:param database:    La base de données
+		"""
 		self.database = database
 		self.modele_dir = os.path.join(path, "modeles")
 		if not os.path.isdir(self.modele_dir):
 			os.mkdir(self.modele_dir)
 		self.collecte_modeles()
 
-	def collecte_modeles(self):
+	def collecte_modeles(self) -> None:
 		"""
-		TODO
-		:return:
+		Permet de lire les fichiers de modèles et de les ajouter à la base de données
+		:return: Rien
+		:rtype: None
 		"""
 		fichiers = [fichier for fichier in os.listdir(self.modele_dir) if os.path.isfile(os.path.join(self.modele_dir, fichier))]
 		for fichier in fichiers:

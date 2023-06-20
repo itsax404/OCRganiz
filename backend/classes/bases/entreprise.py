@@ -59,9 +59,22 @@ class Entreprise:
 		"""
 		return self.nom
 
-
-	def modifier_nom(self, nom):
+	def modifier_nom(self, nom: str) -> None:
+		"""
+		Permet de modifier le nom de l'entreprise
+		:param nom: Le nouveau nom de l'entreprise
+		:type nom: str
+		:return: Rien
+		:rtype: None
+		"""
 		self.nom = nom
 
-	def modifier_adresse(self, adresse):
+	def modifier_adresse(self, adresse: Adresse) -> None:
+		"""
+		Permet de modifier l'adresse de l'entreprise
+		:param adresse: la nouvelle adresse de l'entreprise
+		:type adresse: Adresse
+		:return: Rien
+		:rtype: None
+		"""
 		self.adresse = adresse

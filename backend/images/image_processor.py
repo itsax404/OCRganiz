@@ -61,6 +61,7 @@ class Image_Processor:
 			nom : 'entreprise.nom'
 			adresse : 'entreprise.adresse'
 		"""
+		print(images)
 		if type == "facture":
 			acheteur = Personne()
 			adresse = Adresse()
@@ -70,10 +71,10 @@ class Image_Processor:
 			date_achat = None
 			for coordonnee in coordonnees:
 				page = coordonnee["page"]
-				self.image = images[page-1]
+				self.image = images[page]
 				sous_parties = [partie for partie in coordonnee["type"].split(".") if partie != ""]
 				coords = coordonnee["coordonnées"]
-				ocr = self.__crop_and_ocr__(coords, path)
+				ocr = self.__crop_and_ocr__(coords, path).replace("\n", "")
 				print(f"{sous_parties} | ocr : {ocr}")
 				if len(sous_parties) == 1:
 					return None
@@ -126,9 +127,9 @@ class Image_Processor:
 
 				elif sous_parties[0] == "prix_ht" or sous_parties[0] == "prix_ttc":
 					if sous_parties[0] == "prix_ht":
-						prix_ht = float(ocr)
+						prix_ht = float(ocr.replace(",", "."))
 					else:
-						prix_ttc = float(ocr)
+						prix_ttc = float(ocr.replace(",", "."))
 				else:
 					raise ValueError("Erreur")
 

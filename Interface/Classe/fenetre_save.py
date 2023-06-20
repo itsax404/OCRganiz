@@ -1,3 +1,4 @@
+import json
 import tkinter as tk
 import os.path
 from backend.classes.modele import Modele
@@ -57,7 +58,7 @@ class Save_modele(tk.Toplevel):
         btn_save = tk.Button(master=btn_frame, text="Enregistrer", command=self.save)
         btn_save.grid(row=0, column=3, padx=10, pady=10)
 
-        btn_export = tk.Button(master=btn_frame, text="Export modèle", command=self.exporter())
+        btn_export = tk.Button(master=btn_frame, text="Export modèle", command=self.exporter)
         btn_export.grid(row=1, column=2, padx=10, pady=10)
 
     def annuler(self):
@@ -85,7 +86,7 @@ class Save_modele(tk.Toplevel):
 
     def creation_data_rect(self):
         """
-        Permet la création et insertion dans BDD d'une liste de coordonnées sous la forme de:
+        Permet la création d'une liste de coordonnées sous la forme de:
         [{"nom_modele": nom_modele, "type": self.type},
         {   "coordonnées":  rect.dimension(),
             "type": id.exemple1,
@@ -109,15 +110,25 @@ class Save_modele(tk.Toplevel):
 
 
     def ajouter_bdd(self):
+        """
+        Fonction pour ajouter un modèle dans la BDD
+        :return: None
+        """
         data_rect = self.creation_data_rect()
         modele = Modele(data_rect)
         self.database.ajouter_modele(modele)
+
     def exporter(self):
+        """
+        Permet d'exporter les coordonnées dans un fichier .modele
+        :return: None
+        """
         input_text = self.nom_modele.get("1.0", "end-1c")
         nom_modele = input_text
         data_rect = self.creation_data_rect()
         path = os.path.join(self.parent_dir, "modeles", f"{nom_modele}.modele")
-        fichier = open(path, "W+")
-        fichier.write(data_rect)
+        fichier = open(path, "w", encoding="UTF-8")
+        fichier.write(json.dumps(data_rect, indent=4))
         fichier.close()
+        self.destroy()
 

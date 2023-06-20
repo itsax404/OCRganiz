@@ -51,6 +51,8 @@ class Liste_interface_c(tk.Frame):
         btn_visualisation = tk.Button(master=self.file_btn, text="Inserer", command=self.inserer_bdd)
         btn_visualisation.grid(row=0, column=4, padx=10, pady=10)
 
+
+
     def affichage_label_list(self) -> None:
 
         """
@@ -84,6 +86,8 @@ class Liste_interface_c(tk.Frame):
 
         self.tv.config(yscrollcommand=scrollbar.set)
         scrollbar.config(command=self.tv.yview)
+
+        self.inserer_fichiers_Bdd()
 
     def add(self, file: str) -> None:
         """
@@ -164,6 +168,15 @@ class Liste_interface_c(tk.Frame):
                             }
             liste_data.append(dict_données)
         enregistrer(liste_data, self.database, self.image_processor, self.path)
+
+    def inserer_fichiers_Bdd(self):
+        fichiers_Bdd = self.database.avoir_tous_les_fichiers()
+        if fichiers_Bdd != None:
+            for fichier in fichiers_Bdd:
+                id = fichier.avoir_identifiant()
+                modele = fichier.avoir_donnees()
+                #print(modele["fichier"])
+                self.tv.insert(parent='', index='end', values=("None","none", "None"))
 
 
 class Menu_p(tk.Frame):

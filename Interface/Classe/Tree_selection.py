@@ -46,7 +46,7 @@ class List_selection_rect (tk.Frame):
 
 
     def get_tree_modele(self):
-        type_path = os.path.join(self.parent_dir, "Config_interface", "Type", 'Type_tree')
+        type_path = os.path.join(self.parent_dir, "Config_interface", 'Type_tree')
         fichier = open(type_path, "r")
         tree_type = fichier.readlines()
         fichier.close()

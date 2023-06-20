@@ -9,14 +9,20 @@ def convertir_fichier(fichier):
     return donnees_binaires
 
 
-def enregistrer(liste_fichiers, database, image_processor, path):
+def enregistrer(liste_fichiers, database, image_processor, path) -> None:
     """
+    Permet d'enregistrer plusieurs fichiers dans la base de données
         {fichier: "", modele: ""}
-    :param liste_fichiers:
-    :param type:
-    :param modele:
-    :param database:
-    :return:
+    :param liste_fichiers: liste des fichiers à enregistrer
+    :type liste_fichiers: list[dict]
+    :param type: type de fichier à enregistrer
+    :type type: str
+    :param modele: modèle du fichier à enregistrer
+    :type modele: str
+    :param database: base de données
+    :type database: Database
+    :return: None
+    :rtype: None
     """
     for data in liste_fichiers:
         fichier_path = data["fichier"]

@@ -2,6 +2,15 @@
 class Detection_rect():
     def __init__(self, scale, topx, topy, botx, boty, translation_x, translation_y, n_img, id):
         self.scale = scale
+        print(f"topx= {topx} botx={botx} topy = {topy} boty = {boty}")
+        if botx < topx:
+            tmp = botx
+            botx = topx
+            topx = tmp
+        if boty < topy:
+            tmp = boty
+            boty = topy
+            topy = tmp
 
         self.topx = topx - translation_x
         self.topy = topy - translation_y

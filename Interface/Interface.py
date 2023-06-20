@@ -27,7 +27,7 @@ class Interface:
 
     def delete_output(self):
         # suppression des img
-        dir = os.path.join(self.main_path, "Config_interface", "output")
+        dir = os.path.join(self.main_path, "output")
         for img in os.scandir(dir):
             extension = os.path.splitext(img.path)[1]
             if extension == ".png":

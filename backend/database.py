@@ -803,5 +803,8 @@ class Database:
 		curseur.close()
 		return resultat is not None
 
-
+	def avoir_tous_les_fichiers(self):
+		liste_factures = self.avoir_toutes_les_factures()
+		liste_fiche = self.avoir_toutes_les_fiches_de_paie()
+		return liste_fiche + liste_factures
 

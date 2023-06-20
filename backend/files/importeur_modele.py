@@ -27,6 +27,7 @@ class Importateur():
 			extension = os.path.splitext(fichier)[-1].lower()
 
 			if extension == ".modele":
-				contenu_fichier = open(os.path.join(self.modele_dir, fichier)).read()
-				modele = Modele(contenu_fichier)
+				contenu_fichier = open(os.path.join(self.modele_dir, fichier), encoding="UTF-8").read()
+				contenu_nettoyé = json.loads(contenu_fichier)
+				modele = Modele(contenu_nettoyé)
 				self.database.ajouter_modele(modele)

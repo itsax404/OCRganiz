@@ -29,7 +29,6 @@ def enregistrer(liste_fichiers, database, image_processor, path):
         for i, coords in enumerate(modele.avoir_donnees()):
             dictionnaire_coordonnees = {}
             page = coords[f"page_rectangle{i + 1}"]
-            print(coords)
             utilisation = coords[f"utilisation_rectangle{i + 1}"]
             coordonnees = tuple((coords[f"rectangle_x{i+1}_1"], coords[f"rectangle_x{i+1}_2"], coords[f"rectangle_y{i+1}_1"], coords[f"rectangle_y{i+1}_2"]))
             dictionnaire_coordonnees["coordonnées"] = coordonnees
@@ -39,7 +38,6 @@ def enregistrer(liste_fichiers, database, image_processor, path):
         objet = image_processor.reconnaitre(images, liste_coordonnées, modele.avoir_type(), path)
         objet.modifier_fichier(fichier)
         if modele.type == "facture":
-            print(objet.avoir_donnees())
             database.ajouter_facture(objet)
         elif modele.type == "fiche de paie":
             database.ajouter_fiche_paie(objet)

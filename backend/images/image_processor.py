@@ -31,6 +31,10 @@ class Image_Processor:
 		image_pillow = Image.open(self.image)
 		return image_pillow.crop(coordonnées)
 
+	def crop_interface(self, image, coordonnées: tuple[int, int, int, int]) -> Image:
+		image_pillow = Image.open(image)
+		return image_pillow.crop(coordonnées)
+
 	def __ocr_cropped_image__(self, image: Image, lang: str = "fra") -> str:
 		pytesseract.pytesseract.tesseract_cmd = self.tesseract_dir
 		return pytesseract.image_to_string(image, lang=lang)

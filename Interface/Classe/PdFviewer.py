@@ -8,6 +8,7 @@ from .Zone_detection import Detection_rect
 from .Tree_selection import List_selection_rect
 from .fenetre_save import Save_modele
 
+
 class Visualisation_pdf(tk.Toplevel):
     def __init__(self, master, path, parent_dir, database, image_processor):
         super().__init__(master=None)
@@ -77,7 +78,6 @@ class Visualisation_pdf(tk.Toplevel):
         btn_save = tk.Button(master=frame_save, text="Enregister modèle", command=self.fenetre_save)
         btn_save.grid(row=0, column=0)
 
-
         self.choix_modèle = tk.StringVar()
         self.str_choix = ("Facture", "Fiche de paie")
         self.choix_modèle.set(self.str_choix[0])
@@ -91,32 +91,24 @@ class Visualisation_pdf(tk.Toplevel):
         self.text_test = tk.Text(labelframe_test, height=10, width=25)
         self.text_test.grid(row=0, column=0)
 
-
-
         """ -------------------Canvas------------"""
 
         self.frame = tk.Frame(master=self, width=self.w, height=self.h)
         self.frame.pack(side="left", fill=tk.Y, padx=10)
 
-
-
         self.canvas = tk.Canvas(master=self.frame, width=self.WIDTH * self.imgscale, height=self.HEIGHT * self.imgscale,
                                 borderwidth=0, highlightthickness=0, background="green")
-
 
         self.img = self.img.resize((int(self.WIDTH * self.imgscale), int(self.HEIGHT * self.imgscale)))
         self.img = ImageTk.PhotoImage(self.img)
 
         self.canvas.img = self.img
 
-
         self.img_canvas = self.canvas.create_image(0, 0, image=self.img, anchor=tk.NW)
         self.canvas.grid(row=0, column=1)
 
-
         btn_nextpage = tk.Button(self.frame, text=">", command=self.change_page)
         btn_nextpage.grid(row=0, column=2)
-
 
         btn_previouspage = tk.Button(self.frame, text="<", command=self.change_page)
         btn_previouspage.grid(row=0, column=0)
@@ -130,14 +122,13 @@ class Visualisation_pdf(tk.Toplevel):
 
         self.canvas.bind('<Button-3>', self.pos)
         self.canvas.bind('<B3-Motion>', self.new_pos)
-        self.canvas.bind('<ButtonRelease-3>',  self.calcul_translation)
+        self.canvas.bind('<ButtonRelease-3>', self.calcul_translation)
 
         self.canvas.bind('<Button-1>', self.get_mouse_posn)
         self.canvas.bind('<B1-Motion>', self.update_sel_rect)
 
         self.canvas.bind('<Button-2>', self.recentrage_image)
         self.canvas.bind("<MouseWheel>", self.zoom)
-
 
     def pdfimg(self):
         """
@@ -155,27 +146,25 @@ class Visualisation_pdf(tk.Toplevel):
             img.save(output_path)
             self.imgfiles.append(output_path)
 
-
     def test(self):
-        rect_test = Detection_rect(self.imgscale, self.topx, self.topy, self.botx, self.boty, self.translation_x, self.translation_y, self.n_img, "test")
+        rect_test = Detection_rect(self.imgscale, self.topx, self.topy, self.botx, self.boty, self.translation_x,
+                                   self.translation_y, self.n_img, "test")
         n = rect_test.get_nimg()
         output_path = os.path.join(self.imgfiles[n])
-        image_cropped = self.ip.crop(output_path, coordonnées=rect_test.dimension())
+        image_cropped = self.ip.crop_interface(output_path, coordonnées=rect_test.dimension())
         height, weight = image_cropped.size
         if not (height == 0 or weight == 0):
-            adresse = self.ip.reconnaitre( [{"coordonnées": rect_test.dimension(), "type": "adresse"}], None)
+            text = self.ip.__ocr_cropped_image__(image_cropped)
             self.text_test.delete("1.0", "end-1c")
-            self.text_test.insert(tk.END, adresse.avoir_donnees())
-
+            self.text_test.insert(tk.END, text)
 
     def get_mouse_posn(self, event):
         self.topx, self.topy = event.x, event.y
 
-
     def update_sel_rect(self, event):
         self.botx, self.boty = event.x, event.y
-        self.canvas.coords(self.rect_id, self.topx - self.translation_x, self.topy - self.translation_y, self.botx - self.translation_x, self.boty - self.translation_y )
-
+        self.canvas.coords(self.rect_id, self.topx - self.translation_x, self.topy - self.translation_y,
+                           self.botx - self.translation_x, self.boty - self.translation_y)
 
     def change_page(self):
         self.n_img += 1
@@ -185,7 +174,6 @@ class Visualisation_pdf(tk.Toplevel):
         self.update_image()
         self.text_nbpage.delete("1.0", "end-1c")
         self.text_nbpage.insert(tk.END, self.n_img)
-
 
     def zoom(self, event):
         delta = 0.75
@@ -198,7 +186,6 @@ class Visualisation_pdf(tk.Toplevel):
         print(self.posx, self.posy, self.canvasscale)
         self.update_image()
 
-
     def update_image(self):
         self.img = Image.open(self.imgfiles[self.n_img])
         self.img = self.img.resize((int(self.WIDTH * self.imgscale), int(self.HEIGHT * self.imgscale)))
@@ -206,7 +193,6 @@ class Visualisation_pdf(tk.Toplevel):
         self.canvas.itemconfig(self.img_canvas, image=self.img)
         self.canvas.lower(self.img_canvas)
         self.canvas.grid(row=0, column=1)
-
 
     def recentrage_image(self, event):
         self.canvasscale = 1
@@ -227,17 +213,16 @@ class Visualisation_pdf(tk.Toplevel):
         self.canvas.yview_moveto(0)
         self.update_image()
 
-
     def debug(self):
         self.rect_debug = []
         i = 0
         for rect in self.list_detection_rect:
             self.rect_debug.append(self.canvas.create_rectangle(self.topx, self.topy, self.topx, self.topy,
-                                                dash=(2, 2), fill='', outline='blue'))
-            self.canvas.coords(self.rect_debug[i], rect.get_topx()*self.imgscale, rect.get_topy()*self.imgscale, rect.get_botx()*self.imgscale, rect.get_boty()*self.imgscale)
+                                                                dash=(2, 2), fill='', outline='blue'))
+            self.canvas.coords(self.rect_debug[i], rect.get_topx() * self.imgscale, rect.get_topy() * self.imgscale,
+                               rect.get_botx() * self.imgscale, rect.get_boty() * self.imgscale)
             i += 1
             print(rect.get_id())
-
 
     def new_pos(self, event):
         self.canvas.scan_dragto(event.x, event.y, gain=1)
@@ -246,23 +231,19 @@ class Visualisation_pdf(tk.Toplevel):
         self.newposx = self.newposx - self.posx
         self.newposy = self.newposy - self.posy
 
-
     def pos(self, event):
         self.canvas.scan_mark(event.x, event.y)
         self.posx = event.x
         self.posy = event.y
 
-
     def calcul_translation(self, event):
         self.translation_x += self.newposx
         self.translation_y += self.newposy
-
 
     def changmt_option(self, event):
         newmodele = self.choix_modèle.get()
         self.list_tree.set_modele(newmodele)
         self.list_tree.update_tree()
-
 
     def add_rect(self):
         id = self.list_tree.get_selection_id()
@@ -270,12 +251,10 @@ class Visualisation_pdf(tk.Toplevel):
             Detection_rect(self.imgscale, self.topx, self.topy, self.botx, self.boty, self.translation_x,
                            self.translation_y, self.n_img, id))
 
-
     def reset(self):
         self.list_detection_rect.clear()
         for i in range(0, len(self.rect_debug)):
             self.canvas.delete(self.rect_debug[i])
-
 
     def fenetre_save(self, ):
         save_fenetre = Save_modele(self.choix_modèle.get(), self.parent_dir, self.database)

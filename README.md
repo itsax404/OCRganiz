@@ -2,7 +2,8 @@
 
 ## C'est quoi *OCRganiz* ?
 Cela permet d'enregistrer des fichiers, telles que des factures, fiches de paie, en utilisant de l'OCR *(Opticial Recognization Character)* afin de pouvoir les trier.
-## Comment utilisé *OCRganiz* 
+## Prérequis
+## Comment utiliser *OCRganiz* 
 Une fois le programme lancé, nous avons la fenêtre suivante :    
 ![image](https://github.com/itsax404/OCRganiz/assets/93085354/cedd6b58-0498-4320-b066-af8a7e66a2bb)  
 

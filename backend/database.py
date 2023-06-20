@@ -33,11 +33,11 @@ class Database:
 			'CREATE TABLE IF NOT EXISTS entreprises (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT, adresse INT, '
 			'FOREIGN KEY (adresse) REFERENCES adresses(id))',
 			'CREATE TABLE IF NOT EXISTS factures (id INTEGER PRIMARY KEY AUTOINCREMENT, acheteur INT, adresse_acheteur '
-			'INT, enseigne INT, prix_ht DOUBLE, prix_ttc DOUBLE, date_achat DATE, fichier LONGBLOB, FOREIGN KEY ('
+			'INT, enseigne INT, prix_ht DOUBLE, prix_ttc DOUBLE, date_achat TEXT, fichier LONGBLOB, FOREIGN KEY ('
 			'acheteur) REFERENCES personnes(id), FOREIGN KEY (adresse_acheteur) REFERENCES adresses(id), FOREIGN KEY ('
 			'enseigne) REFERENCES entreprises(id))',
 			'CREATE TABLE IF NOT EXISTS fiches_paie (id INTEGER PRIMARY KEY AUTOINCREMENT, entreprise INT, '
-			'employe INT, date DATE, revenu_brut DOUBLE, revenu_net DOUBLE, fichier LONGBLOB, FOREIGN KEY (entreprise) '
+			'employe INT, date TEXT, revenu_brut DOUBLE, revenu_net DOUBLE, fichier LONGBLOB, FOREIGN KEY (entreprise) '
 			'REFERENCES entreprises(id), FOREIGN KEY (employe) REFERENCES personnes(id) )',
 			'CREATE TABLE IF NOT EXISTS modeles (nom_modele TEXT PRIMARY KEY, type TEXT ,'
 			'rectangle_x1_1 FLOAT, rectangle_x1_2 FLOAT, rectangle_y1_1 FLOAT, rectangle_y1_2 FLOAT, '
@@ -77,11 +77,12 @@ class Database:
 		:return: l'adresse avec l'identifiant de la base de données
 		:rtype: Adresse
 		"""
-		if self.est_dans_la_base_adresse(adresse.id):
-			return self.avoir_adresse(adresse.id)
+		if self.est_dans_la_base_adresse(adresse.avoir_identifiant()):
+			return self.avoir_adresse(adresse.avoir_identifiant())
 		curseur = self.connexion.cursor()
+		print(adresse.avoir_donnees())
 		curseur.execute(
-			'INSERT INTO adresses (numero, rue, complement, boite_postale, code_postal, ville, pays) VALUES (?, ?, ?, ?, ?, ?,  ?, ?)',
+			'INSERT INTO adresses (numero, rue, complement, boite_postale, code_postal, ville, pays) VALUES (?, ?, ?, ?, ?, ?, ?)',
 			tuple(adresse.avoir_donnees().values()))
 		self.connexion.commit()
 		donnees = adresse.avoir_donnees()
@@ -196,7 +197,7 @@ class Database:
 		if self.est_dans_la_base_personne(personne.avoir_identifiant()):
 			return self.avoir_personne(personne.avoir_identifiant())
 		curseur = self.connexion.cursor()
-		curseur.execute('INSERT INTO personnes (nom, prenom) VALUES (?, ?, ?, ?)',
+		curseur.execute('INSERT INTO personnes (nom, prenom) VALUES (?, ?)',
 					   tuple(personne.avoir_donnees().values()))
 		self.connexion.commit()
 		donnees = personne.avoir_donnees()
@@ -309,7 +310,7 @@ class Database:
 		curseur = self.connexion.cursor()
 		if self.est_dans_la_base_entreprise(entreprise.avoir_identifiant()):
 			return self.avoir_entreprise(entreprise.avoir_identifiant())
-		adresse_entreprise = entreprise.adresse
+		adresse_entreprise = entreprise.avoir_adresse()
 		adresse_bdd = self.ajouter_adresse(adresse_entreprise)
 		curseur.execute("INSERT INTO entreprises (nom, adresse) VALUES (?, ?)",
 						 tuple((entreprise.avoir_nom(), adresse_bdd.avoir_identifiant())))
@@ -723,17 +724,18 @@ class Database:
 		nombre_rectangle = (len(resultat) - 3) // 6
 		liste_donnees = [{"nom_modele": resultat[0], "type": resultat[1]}]
 		for i in range(nombre_rectangle):
-			donnees_dict = dict()
-			donnees = list()
-			donnees.append(resultat[2 + i * 6])
-			donnees.append(resultat[3 + i * 6])
-			donnees.append(resultat[4 + i * 6])
-			donnees.append(resultat[5 + i * 6])
-			donnees.append(resultat[6 + i * 6])
-			donnees_dict["coordonnées"] = tuple(donnees)
-			donnees_dict["type"] = resultat[7 + i * 6]
-			donnees_dict["page"] = resultat[8 + i * 6]
-			liste_donnees.append(donnees_dict)
+			if resultat[2 + i * 6] is not None:
+				donnees_dict = dict()
+				donnees = list()
+				donnees.append(resultat[2 + i * 6])
+				donnees.append(resultat[3 + i * 6])
+				donnees.append(resultat[4 + i * 6])
+				donnees.append(resultat[5 + i * 6])
+				donnees_dict["coordonnées"] = tuple(donnees)
+				donnees_dict["type"] = resultat[6 + i * 6]
+				donnees_dict["page"] = resultat[7 + i * 6]
+				print(donnees_dict)
+				liste_donnees.append(donnees_dict)
 		return Modele(liste_donnees)
 	def avoir_tous_les_modeles(self) -> list[Modele]:
 		"""

@@ -89,8 +89,8 @@ class Adresse:
 	def modifier_numero(self, numero_rue):
 		self.numero_rue = numero_rue
 
-	def modifier_rue(self):
-		self.nom_rue = self.nom_rue
+	def modifier_rue(self, nom_rue):
+		self.nom_rue = nom_rue
 
 	def modifier_boite_postale(self, boite_postale):
 		self.boite_postale = boite_postale

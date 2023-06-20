@@ -1,6 +1,8 @@
 import tkinter as tk
 import os.path
 from Interface.Classe.Liste_interface import Liste_interface_c, Menu_p
+
+
 class Interface:
     def __init__(self, main_path, database, image_processor):
         self.master = tk.Tk()
@@ -16,14 +18,12 @@ class Interface:
         self.master.mainloop()
         self.delete_output()
 
-
     def affichage(self):
-        list_file = Liste_interface_c(self.master,self.main_path, self.database, self.image_processor )
+        list_file = Liste_interface_c(self.master, self.main_path, self.database, self.image_processor)
         menu = Menu_p(self.master, list_interface=list_file)
 
         menu.affichage()
         list_file.affichage()
-
 
     def delete_output(self):
         # suppression des img
@@ -32,6 +32,3 @@ class Interface:
             extension = os.path.splitext(img.path)[1]
             if extension == ".png":
                 os.remove(img.path)
-
-
-

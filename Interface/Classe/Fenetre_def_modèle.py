@@ -1,5 +1,7 @@
 import tkinter as tk
 import os.path
+
+
 class Defenir_modele(tk.Toplevel):
     def __init__(self, list: str, main_path: str, database):
         """
@@ -16,7 +18,6 @@ class Defenir_modele(tk.Toplevel):
         self.iconbitmap(icon_path)
         self.list = list
 
-
     def affichage(self):
         """
         Affiche l'interface graphique
@@ -26,9 +27,7 @@ class Defenir_modele(tk.Toplevel):
         self.affichage_choix()
         self.affichage_btn()
 
-
     def affichage_label(self):
-
         """
         Affichage du texte
         :return: None
@@ -38,7 +37,6 @@ class Defenir_modele(tk.Toplevel):
 
         label_text_1 = tk.Label(master=label_frame, text="Definir un modèle et un type:")
         label_text_1.grid(row=0, column=0, padx=10, pady=10)
-
 
     def affichage_btn(self):
         """
@@ -54,7 +52,6 @@ class Defenir_modele(tk.Toplevel):
         btn_save = tk.Button(master=btn_frame, text="Enregistrer", command=self.enregister_modele)
         btn_save.grid(row=0, column=3, padx=10, pady=10)
 
-
     def affichage_choix(self):
         """
         Affichage des options deroulant pour choisir un type et un modèle
@@ -67,19 +64,18 @@ class Defenir_modele(tk.Toplevel):
         self.str_choix = ("Facture", "Fiche de paie")
         self.choix_type.set(self.str_choix[0])
 
-        self.option_type = tk.OptionMenu(self.choix_frame, self.choix_type, *self.str_choix, command=self.changmt_option)
+        self.option_type = tk.OptionMenu(self.choix_frame, self.choix_type, *self.str_choix,
+                                         command=self.changmt_option)
         self.option_type.grid(row=0, column=0, padx=10)
 
         self.choix_modèle = tk.StringVar()
-        self.str_modele = ("None","None")
+        self.str_modele = ("None", "None")
         self.choix_modèle.set("None")
-
 
         self.option_modele = tk.OptionMenu(self.choix_frame, self.choix_modèle, *self.str_modele)
         self.option_modele.grid(row=1, column=0, padx=10)
         self.changmt_option(None)
         self.update_option_modele()
-
 
     def annuler(self):
         """
@@ -87,7 +83,6 @@ class Defenir_modele(tk.Toplevel):
         :return: None
         """
         self.destroy()
-
 
     def changmt_option(self, event=None):
         """
@@ -103,7 +98,6 @@ class Defenir_modele(tk.Toplevel):
         self.str_modele = lignes
         self.update_option_modele()
 
-
     def update_option_modele(self):
         """
         Mise à jour des options deroulant qui gère les modèles
@@ -116,7 +110,6 @@ class Defenir_modele(tk.Toplevel):
 
         self.option_modele = tk.OptionMenu(self.choix_frame, self.choix_modèle, *self.str_modele)
         self.option_modele.grid(row=1, column=0, padx=10)
-
 
     def enregister_modele(self):
         """

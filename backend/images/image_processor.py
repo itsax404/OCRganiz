@@ -11,6 +11,7 @@ from backend.classes.bases.entreprise import Entreprise
 from backend.images.reconnaisseurs.adresse_reconnaisseur import Adresse_Reconnaisseur
 from backend.images.reconnaisseurs.entreprise_reconnaisseur import Entreprise_Reconnaisseur
 from backend.images.reconnaisseurs.personne_reconnaisseur import Personne_Reconnaisseur
+import os
 
 
 class Image_Processor:
@@ -24,8 +25,9 @@ class Image_Processor:
 		self.entreprise_reconnaisseur = Entreprise_Reconnaisseur()
 		self.personne_reconnaisseur = Personne_Reconnaisseur()
 
-	def crop(self, image, coordonnées: tuple[int, int, int, int]) -> Image:
-		self.image = image
+	def crop(self, image, coordonnées: tuple[int, int, int, int], path) -> Image:
+		self.image = os.path.join(path, "output", f"output_temp.jpg")
+		image.save(self.image)
 		image_pillow = Image.open(self.image)
 		return image_pillow.crop(coordonnées)
 
@@ -33,11 +35,11 @@ class Image_Processor:
 		pytesseract.pytesseract.tesseract_cmd = self.tesseract_dir
 		return pytesseract.image_to_string(image, lang=lang)
 
-	def __crop_and_ocr__(self, coordonnées: tuple[int, int, int, int], lang: str = "fra") -> str:
-		cropped_image = self.crop(self.image, coordonnées)
+	def __crop_and_ocr__(self, coordonnées: tuple[int, int, int, int], path, lang: str = "fra") -> str:
+		cropped_image = self.crop(self.image, coordonnées, path)
 		return self.__ocr_cropped_image__(cropped_image, lang=lang)
 
-	def reconnaitre(self, images, coordonnees, type):
+	def reconnaitre(self, images, coordonnees, type, path):
 		"""
 		coordonnee : [{"coordonnées": (int, int, int, int), "type": "*.*" , "page": int}]
 		adresse : 'adresse'
@@ -58,7 +60,7 @@ class Image_Processor:
 		if type == "facture":
 			acheteur = Personne()
 			adresse = Adresse()
-			enseigne = Entreprise()
+			enseigne = Entreprise(adresse=Adresse())
 			prix_ht = 0.0
 			prix_ttc = 0.0
 			date_achat = None
@@ -72,56 +74,62 @@ class Image_Processor:
 				if sous_parties[0] == "adresse":
 					match sous_parties[1]:
 						case "numero":
-							adresse.modifier_numero(self.__crop_and_ocr__(coords))
+							adresse.modifier_numero(self.__crop_and_ocr__(coords, path))
 						case "rue":
-							adresse.modifier_rue(self.__crop_and_ocr__(coords))
+							a = self.__crop_and_ocr__(coords, path)
+							print(len(a))
+							adresse.modifier_rue(a)
 						case "complement":
-							adresse.modifier_complement(self.__crop_and_ocr__(coords))
+							adresse.modifier_complement(self.__crop_and_ocr__(coords, path))
 						case "boite_postale":
-							adresse.modifier_boite_postale(self.__crop_and_ocr__(coords))
+							adresse.modifier_boite_postale(self.__crop_and_ocr__(coords, path))
 						case "code postal":
-							adresse.modifier_code_postal(self.__crop_and_ocr__(coords))
+							adresse.modifier_code_postal(self.__crop_and_ocr__(coords, path))
 						case "ville":
-							adresse.modifier_ville(self.__crop_and_ocr__(coords))
+							adresse.modifier_ville(self.__crop_and_ocr__(coords, path))
 						case "pays":
-							adresse.modifier_pays(self.__crop_and_ocr__(coords))
+							adresse.modifier_pays(self.__crop_and_ocr__(coords, path))
 				elif sous_parties[0] == "personne":
 					match sous_parties[1]:
 						case "nom":
-							acheteur.modifier_nom(self.__crop_and_ocr__(coords))
+							acheteur.modifier_nom(self.__crop_and_ocr__(coords, path))
 						case "prenom":
-							acheteur.modifier_prenom(self.__crop_and_ocr__(coords))
+							acheteur.modifier_prenom(self.__crop_and_ocr__(coords, path))
 
 				elif sous_parties[0] == "entreprise":
 					if len(sous_parties) == 3:
 						if sous_parties[1] == "adresse":
 							match sous_parties[2]:
 								case "numero":
-									enseigne.avoir_adresse().modifier_numero(self.__crop_and_ocr__(coords))
+									enseigne.avoir_adresse().modifier_numero(self.__crop_and_ocr__(coords, path))
 								case "rue":
-									enseigne.avoir_adresse().modifier_rue(self.__crop_and_ocr__(coords))
+									enseigne.avoir_adresse().modifier_rue(self.__crop_and_ocr__(coords, path))
 								case "complement":
-									enseigne.avoir_adresse().modifier_complement(self.__crop_and_ocr__(coords))
+									enseigne.avoir_adresse().modifier_complement(self.__crop_and_ocr__(coords, path))
 								case "boite_postale":
-									enseigne.avoir_adresse().modifier_boite_postale(self.__crop_and_ocr__(coords))
+									enseigne.avoir_adresse().modifier_boite_postale(self.__crop_and_ocr__(coords, path))
 								case "code postal":
-									enseigne.avoir_adresse().modifier_code_postal(self.__crop_and_ocr__(coords))
+									enseigne.avoir_adresse().modifier_code_postal(self.__crop_and_ocr__(coords, path))
 								case "ville":
-									enseigne.avoir_adresse().modifier_ville(self.__crop_and_ocr__(coords))
+									enseigne.avoir_adresse().modifier_ville(self.__crop_and_ocr__(coords, path))
 								case "pays":
-									enseigne.avoir_adresse().modifier_pays(self.__crop_and_ocr__(coords))
+									enseigne.avoir_adresse().modifier_pays(self.__crop_and_ocr__(coords, path))
 					if len(sous_parties) == 2:
 						if sous_parties[1] == "nom":
-							enseigne.modifier_nom(self.__crop_and_ocr__(coords))
+							enseigne.modifier_nom(self.__crop_and_ocr__(coords, path))
 				elif sous_parties[0] == "date_achat":
-					date_achat = datetime.datetime.strptime(self.__crop_and_ocr__(coords), "%d/%m/%Y")
+					date_achat = (self.__crop_and_ocr__(coords, path))
 
 				elif sous_parties[0] == "prix_ht" or sous_parties[0] == "prix_ttc":
 					if sous_parties[0] == "prix_ht":
-						prix_ht = float(self.__crop_and_ocr__(coords))
+						prix_ht = float(self.__crop_and_ocr__(coords, path))
 					else:
-						prix_ttc = float(self.__crop_and_ocr__(coords))
+						prix_ttc = float(self.__crop_and_ocr__(coords, path))
 				else:
 					raise ValueError("Erreur")
 
+				a = os.path.join(path, "output", "output_temp.jpg")
+				if os.path.isfile(a):
+					os.remove(a)
+			print(enseigne)
 			return Facture(acheteur, adresse, enseigne, prix_ht, prix_ttc, date_achat)

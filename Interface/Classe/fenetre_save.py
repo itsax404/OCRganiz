@@ -1,6 +1,8 @@
 import tkinter as tk
 import os.path
 from backend.classes.modele import Modele
+
+
 class Save_modele(tk.Toplevel):
     def __init__(self, type: str, main_path: str, database):
         """
@@ -17,8 +19,7 @@ class Save_modele(tk.Toplevel):
         self.type = type
         icon_path = os.path.join(self.parent_dir, "lib", 'icon.ico')
         self.iconbitmap(icon_path)
-        self.list_rect=[]
-
+        self.list_rect = []
 
     def affichage(self):
         """
@@ -27,7 +28,6 @@ class Save_modele(tk.Toplevel):
         """
         self.affichage_label()
         self.affichage_btn()
-
 
     def affichage_label(self):
         """
@@ -41,8 +41,7 @@ class Save_modele(tk.Toplevel):
         label_text.grid(row=0, column=2, padx=10, pady=10)
 
         self.nom_modele = tk.Text(master=label_frame, height=1, width=20)
-        self.nom_modele.grid(row=1, column=2, padx=10 , pady=10)
-
+        self.nom_modele.grid(row=1, column=2, padx=10, pady=10)
 
     def affichage_btn(self):
         """
@@ -58,14 +57,12 @@ class Save_modele(tk.Toplevel):
         btn_save = tk.Button(master=btn_frame, text="Enregistrer", command=self.save)
         btn_save.grid(row=0, column=3, padx=10, pady=10)
 
-
     def annuler(self):
         """
         Annule la sauvegarde du modèle
         :return:None
         """
         self.destroy()
-
 
     def set_data_rect(self, list_rect):
         """
@@ -75,7 +72,6 @@ class Save_modele(tk.Toplevel):
         """
         self.list_rect = list_rect
 
-
     def save(self):
         """
         sauvegarde du modèle
@@ -84,14 +80,13 @@ class Save_modele(tk.Toplevel):
         self.creation_data_rect()
         self.destroy()
 
-
-
     def creation_data_rect(self):
         """
         Permet la création et insertion dans BDD d'une liste de coordonnées sous la forme de:
         [{"nom_modele": nom_modele, "type": self.type},
         {   "coordonnées":  rect.dimension(),
-            "type": id.exemple1
+            "type": id.exemple1,
+            "page": numero_page
                   }
 
         ]
@@ -101,9 +96,10 @@ class Save_modele(tk.Toplevel):
         nom_modele = input_text
         data_rect = [{"nom_modele": nom_modele, "type": self.type}]
         for rect in self.list_rect:
-            dict = {"coordonnées":  rect.dimension(),
-                  "type": rect.get_id()
-                  }
+            dict = {"coordonnées": rect.dimension(),
+                    "type": rect.get_id(),
+                    "page": rect.get_nimg()
+                    }
             data_rect.append(dict)
         modele = Modele(data_rect)
         self.database.ajouter_modele(modele)

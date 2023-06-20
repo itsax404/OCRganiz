@@ -1,6 +1,6 @@
 class Personne:
 
-	def __init__(self, nom: str, prenom: str, id: int = -1) -> None:
+	def __init__(self, nom: str= None, prenom: str = None, id: int = -1) -> None:
 		"""
 		Permet de créer un objet "Personne" qui contient les informations d'une personne
 		:param nom: Le nom de la personne

@@ -26,7 +26,7 @@ class Image_Processor:
 		self.personne_reconnaisseur = Personne_Reconnaisseur()
 
 	def crop(self, image, coordonnées: tuple[int, int, int, int], path) -> Image:
-		self.image = os.path.join(path, "output", f"output_temp.jpg")
+		self.image = os.path.join(path, "output", "output_temp.jpg")
 		image.save(self.image)
 		image_pillow = Image.open(self.image)
 		return image_pillow.crop(coordonnées)
@@ -69,62 +69,62 @@ class Image_Processor:
 				self.image = images[page-1]
 				sous_parties = [partie for partie in coordonnee["type"].split(".") if partie != ""]
 				coords = coordonnee["coordonnées"]
+				ocr = self.__crop_and_ocr__(coords, path)
+				print(f"{sous_parties} | ocr : {ocr}")
 				if len(sous_parties) == 1:
 					return None
 				if sous_parties[0] == "adresse":
 					match sous_parties[1]:
 						case "numero":
-							adresse.modifier_numero(self.__crop_and_ocr__(coords, path))
+							adresse.modifier_numero(ocr)
 						case "rue":
-							a = self.__crop_and_ocr__(coords, path)
-							print(len(a))
-							adresse.modifier_rue(a)
+							adresse.modifier_rue(ocr)
 						case "complement":
-							adresse.modifier_complement(self.__crop_and_ocr__(coords, path))
+							adresse.modifier_complement(ocr)
 						case "boite_postale":
-							adresse.modifier_boite_postale(self.__crop_and_ocr__(coords, path))
+							adresse.modifier_boite_postale(ocr)
 						case "code postal":
-							adresse.modifier_code_postal(self.__crop_and_ocr__(coords, path))
+							adresse.modifier_code_postal(ocr)
 						case "ville":
-							adresse.modifier_ville(self.__crop_and_ocr__(coords, path))
+							adresse.modifier_ville(ocr)
 						case "pays":
-							adresse.modifier_pays(self.__crop_and_ocr__(coords, path))
+							adresse.modifier_pays(ocr)
 				elif sous_parties[0] == "personne":
 					match sous_parties[1]:
 						case "nom":
-							acheteur.modifier_nom(self.__crop_and_ocr__(coords, path))
+							acheteur.modifier_nom(ocr)
 						case "prenom":
-							acheteur.modifier_prenom(self.__crop_and_ocr__(coords, path))
+							acheteur.modifier_prenom(ocr)
 
 				elif sous_parties[0] == "entreprise":
 					if len(sous_parties) == 3:
 						if sous_parties[1] == "adresse":
 							match sous_parties[2]:
 								case "numero":
-									enseigne.avoir_adresse().modifier_numero(self.__crop_and_ocr__(coords, path))
+									enseigne.avoir_adresse().modifier_numero(ocr)
 								case "rue":
-									enseigne.avoir_adresse().modifier_rue(self.__crop_and_ocr__(coords, path))
+									enseigne.avoir_adresse().modifier_rue(ocr)
 								case "complement":
-									enseigne.avoir_adresse().modifier_complement(self.__crop_and_ocr__(coords, path))
+									enseigne.avoir_adresse().modifier_complement(ocr)
 								case "boite_postale":
-									enseigne.avoir_adresse().modifier_boite_postale(self.__crop_and_ocr__(coords, path))
+									enseigne.avoir_adresse().modifier_boite_postale(ocr)
 								case "code postal":
-									enseigne.avoir_adresse().modifier_code_postal(self.__crop_and_ocr__(coords, path))
+									enseigne.avoir_adresse().modifier_code_postal(ocr)
 								case "ville":
-									enseigne.avoir_adresse().modifier_ville(self.__crop_and_ocr__(coords, path))
+									enseigne.avoir_adresse().modifier_ville(ocr)
 								case "pays":
-									enseigne.avoir_adresse().modifier_pays(self.__crop_and_ocr__(coords, path))
+									enseigne.avoir_adresse().modifier_pays(ocr)
 					if len(sous_parties) == 2:
 						if sous_parties[1] == "nom":
-							enseigne.modifier_nom(self.__crop_and_ocr__(coords, path))
+							enseigne.modifier_nom(ocr)
 				elif sous_parties[0] == "date_achat":
-					date_achat = (self.__crop_and_ocr__(coords, path))
+					date_achat = (ocr)
 
 				elif sous_parties[0] == "prix_ht" or sous_parties[0] == "prix_ttc":
 					if sous_parties[0] == "prix_ht":
-						prix_ht = float(self.__crop_and_ocr__(coords, path))
+						prix_ht = float(ocr)
 					else:
-						prix_ttc = float(self.__crop_and_ocr__(coords, path))
+						prix_ttc = float(ocr)
 				else:
 					raise ValueError("Erreur")
 

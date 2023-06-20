@@ -3,6 +3,12 @@
 ## C'est quoi *OCRganiz* ?
 Cela permet d'enregistrer des fichiers, telles que des factures, fiches de paie, en utilisant de l'OCR *(Opticial Recognization Character)* afin de pouvoir les trier.
 ## Prérequis
+Dans un premier, l'installation des librairies est impérative :  
+* [Tkinter](https://docs.python.org/3/library/tkinter.html)
+* [Tesseract](https://github.com/UB-Mannheim/tesseract/)  
+Une fois Tesseract correctement installé, il faut modifier le fichier .env en introduisant l'adresse du fichier .exe de tesseract dans le champ TESSERACT_DIR. 
+
+
 ## Comment utiliser *OCRganiz* 
 Une fois le programme lancé, nous avons la fenêtre suivante :    
 ![image](https://github.com/itsax404/OCRganiz/assets/93085354/cedd6b58-0498-4320-b066-af8a7e66a2bb)  
@@ -14,7 +20,7 @@ Il s'agit de l'interface principale, cette fenêtre possède 4 fonctionnalités 
 * Insérer les données récupérées par l'algorithme OCR dans la base de données
 ![image](https://github.com/itsax404/OCRganiz/assets/93085354/611760f8-be8b-4add-b4ef-b4123fd2c5a5)  
 
-Cette interface permet des creer nos propres modèles pour un type de fichier (facture, fiche de paie) :
+Cette interface permet des créer nos propres modèles pour un type de fichier (facture, fiche de paie) :
 * le bouton "test" permet d'afficher le résultat de l'OCR ainsi l'utilisateur peut vérifier la zone sélectionnée
 * L'option "Debug" affiche toutes les zones enregistrées en bleu
 * L'option deroulant gère le choix du type de fichier

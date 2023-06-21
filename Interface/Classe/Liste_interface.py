@@ -1,14 +1,21 @@
-import os.path
 import tkinter as tk
+from backend.database import Database
+from backend.images.image_processor import Image_Processor
 from tkinter import ttk, messagebox, Menu, filedialog
 from .PdFviewer import Visualisation_pdf
 from .Fenetre_def_modèle import Defenir_modele
 from backend.enregistrement import enregistrer
 
 
-
 class Liste_interface_c(tk.Frame):
-    def __init__(self, master, main_path, database, image_processor):
+    def __init__(self, master: tk.Frame, main_path: str, database: Database, image_processor: Image_Processor):
+        """
+        Initialisation de la list qui gère les pdf: type, adresse du fichier, modèle
+        :param master: Frame où la liste sera afficher
+        :param main_path: Dossier racine du programme
+        :param database: Base de données
+        :param image_processor:
+        """
         super().__init__(master)
         self.master = master
         self.pack(side="top")
@@ -16,7 +23,11 @@ class Liste_interface_c(tk.Frame):
         self.database = database
         self.image_processor = image_processor
 
-    def affichage(self):
+    def affichage(self) -> None:
+        """
+        Affichage de la liste et des butons pour gerer cette dernière
+        :return: None
+        """
 
         self.frame = tk.Frame(master=self.master, borderwidth=5, relief="ridge")
         self.frame.pack(side="top")
@@ -26,17 +37,13 @@ class Liste_interface_c(tk.Frame):
         self.affichage_label_list()
 
     def affichage_label_btn(self) -> None:
-        """affichage des butons : tout selectonner, supprimer et visualiser .
+        """Affichage des butons : tout selectonner, supprimer et visualiser .
+            Returns: None"""
 
-            Parameters:
-
-            Returns:
-                    affichage dans la fênetre"""
-
-        self.file_btn = tk.LabelFrame(self.frame, text="option")
+        self.file_btn = tk.LabelFrame(self.frame, text="Option")
         self.file_btn.pack(fill=tk.BOTH, padx=20, pady=10)
 
-        btn_all = tk.Button(master=self.file_btn, text="Selectionner tout les fichiers", command=self.tout_select)
+        btn_all = tk.Button(master=self.file_btn, text="Sélectionner tout les fichiers", command=self.tout_select)
         btn_all.grid(row=0, column=0, padx=10, pady=10)
 
         btn_suppr = tk.Button(master=self.file_btn, text="Supprimer", command=self.suppr)
@@ -45,19 +52,17 @@ class Liste_interface_c(tk.Frame):
         btn_visualisation = tk.Button(master=self.file_btn, text="Visualiser fichier", command=self.visualisation)
         btn_visualisation.grid(row=0, column=2, padx=10, pady=10)
 
-        btn_visualisation = tk.Button(master=self.file_btn, text="Definir modèle", command=self.open_fenetre_modèle)
+        btn_visualisation = tk.Button(master=self.file_btn, text="Définir modèle", command=self.open_fenetre_modèle)
         btn_visualisation.grid(row=0, column=3, padx=10, pady=10)
 
-        btn_visualisation = tk.Button(master=self.file_btn, text="Inserer", command=self.inserer_bdd)
+        btn_visualisation = tk.Button(master=self.file_btn, text="Insérer", command=self.inserer_bdd)
         btn_visualisation.grid(row=0, column=4, padx=10, pady=10)
-
-
 
     def affichage_label_list(self) -> None:
 
         """
-        affichage de la liste des fichiers + scrollbar pour defiler les fichiers insérés
-        :return:
+        Affichage de la liste des fichiers + scrollbar pour defiler les fichiers insérés
+        :return: None
         """
         "frame"
         self.file_frame = tk.LabelFrame(self.frame, text="liste des fichiers")
@@ -91,7 +96,7 @@ class Liste_interface_c(tk.Frame):
 
     def add(self, file: str) -> None:
         """
-        Permet d'ajouter un element à la liste (treeview)
+        Permets d'ajouter un élement à la liste (treeview)
         :param file: str, correspond à l'adresse d'un fichier
         :return:None
         """
@@ -107,7 +112,7 @@ class Liste_interface_c(tk.Frame):
 
     def suppr(self):
         """
-        Permet de supprimer un element de la liste
+        Permets de supprimer un élement de la liste
         :return: None
         """
         res = messagebox.askyesno('', 'Voulez-vous vraiment supprimer les fichers?')
@@ -117,7 +122,7 @@ class Liste_interface_c(tk.Frame):
 
     def tout_select(self) -> None:
         """
-        Selectionne tout les elements de la liste
+        Selectionne tout les élements de la liste
         :return:None
         """
         for item in self.tv.get_children():
@@ -125,7 +130,7 @@ class Liste_interface_c(tk.Frame):
 
     def visualisation(self) -> None:
         """
-        Permet de ouvrir la fênetre pour visualiser le pdf et editer le modèle
+        Permets d'ouvrir la fenêtre pour visualiser le pdf et éditer le modèle
         :return: None
         """
         selected_item = self.tv.selection()[0]
@@ -135,7 +140,7 @@ class Liste_interface_c(tk.Frame):
 
     def open_fenetre_modèle(self) -> None:
         """
-        Ouvre une fênetre pour definir le modèle des elements selectionnés
+        Ouvre une fenêtre pour definir le modèle des élements selectionnés
         :return: None
         """
         self.fenetre_defmodele = Defenir_modele(self, self.path, self.database)
@@ -143,9 +148,9 @@ class Liste_interface_c(tk.Frame):
 
     def change_type_modele(self, type: str, modèle: str) -> None:
         """
-        La fonction permet de definir le type et le modèle d'un element
+        La fonction permets de definir le type et le modèle d'un element
         :param type: il s'agit d'un str du type du document facture ou fiche de paie
-        :param modèle: str permet de definir le modèle d'un type
+        :param modèle: str permets de definir le modèle d'un type
         :return: None
         """
         items = self.tv.selection()
@@ -169,33 +174,46 @@ class Liste_interface_c(tk.Frame):
             liste_data.append(dict_données)
         enregistrer(liste_data, self.database, self.image_processor, self.path)
 
-    def inserer_fichiers_Bdd(self):
+    def inserer_fichiers_Bdd(self) -> None:
+        """
+        Cherche dans la BDD les PdF existant puis ajoute dans la liste
+        :return:None
+        """
         fichiers_Bdd = self.database.avoir_tous_les_fichiers()
         if fichiers_Bdd != None:
             for fichier in fichiers_Bdd:
                 id = fichier.avoir_identifiant()
                 modele = fichier.avoir_donnees()
-                #print(modele["fichier"])
-                self.tv.insert(parent='', index='end', values=("None","none", "None"))
+                # print(modele["fichier"])
+                self.tv.insert(parent='', index='end', values=("None", "none", "None"))
 
 
 class Menu_p(tk.Frame):
-    def __init__(self, master, list_interface):
+    def __init__(self, master: tk.Frame, list_interface: Liste_interface_c):
+        """
+        Menu pour inserer un ou plusieurs fichiers
+        :param master: Fenêtre avec qui le menu sera relié
+        :param list_interface: liste de fichers de l'interface
+        """
         super().__init__(master)
         self.master = master
         self.list = list_interface
         self.pack()
 
-    def affichage(self):
+    def affichage(self) -> None:
+        """
+        Affichage du Menu deroulant en haut à gauche de l'interface
+        :return: None
+        """
         menu = Menu(master=self.master)
         element_menu = Menu(menu)
-        element_menu.add_command(label='Ouvrir fichier', command=self.Openfiles)
+        element_menu.add_command(label='Ouvrir un fichier', command=self.Openfiles)
         menu.add_cascade(label="Menu", menu=element_menu)
         self.master.config(menu=menu)
 
-    def Openfiles(self):
+    def Openfiles(self) -> None:
         """
-        Permet d'ouvrir une fênetre pour chercher un ficher dans les dossiers de l'utilisateur puis l'ajouter dans la liste
+        Permets d'ouvrir une fenêtre pour chercher un ou des fichers dans les dossiers de l'utilisateur puis l'ajouter dans la liste
         :return:
         """
         filenames = filedialog.askopenfilenames(initialdir="/", title="Select a File",

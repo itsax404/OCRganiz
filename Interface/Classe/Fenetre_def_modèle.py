@@ -1,13 +1,14 @@
 import tkinter as tk
 import os.path
+from backend.database import Database
 
 
 class Defenir_modele(tk.Toplevel):
-    def __init__(self, list: str, main_path: str, database):
+    def __init__(self, list: str, main_path: str, database: Database):
         """
         :param list: str[] list des fichiers selectionnés
         :param main_path: str dossier racine du programme
-        :param database:
+        :param database: Base de données
         """
         super().__init__(master=None)
         self.title("Modèle")
@@ -18,7 +19,7 @@ class Defenir_modele(tk.Toplevel):
         self.iconbitmap(icon_path)
         self.list = list
 
-    def affichage(self):
+    def affichage(self) -> None:
         """
         Affiche l'interface graphique
         :return: None
@@ -27,7 +28,7 @@ class Defenir_modele(tk.Toplevel):
         self.affichage_choix()
         self.affichage_btn()
 
-    def affichage_label(self):
+    def affichage_label(self) -> None:
         """
         Affichage du texte
         :return: None
@@ -38,7 +39,7 @@ class Defenir_modele(tk.Toplevel):
         label_text_1 = tk.Label(master=label_frame, text="Definir un modèle et un type:")
         label_text_1.grid(row=0, column=0, padx=10, pady=10)
 
-    def affichage_btn(self):
+    def affichage_btn(self) -> None:
         """
         Affichage des boutons 'Annuler' et 'Enrigistrer'
         :return: None
@@ -52,7 +53,7 @@ class Defenir_modele(tk.Toplevel):
         btn_save = tk.Button(master=btn_frame, text="Enregistrer", command=self.enregister_modele)
         btn_save.grid(row=0, column=3, padx=10, pady=10)
 
-    def affichage_choix(self):
+    def affichage_choix(self) -> None:
         """
         Affichage des options deroulant pour choisir un type et un modèle
         :return: None
@@ -77,14 +78,14 @@ class Defenir_modele(tk.Toplevel):
         self.changmt_option(None)
         self.update_option_modele()
 
-    def annuler(self):
+    def annuler(self) -> None:
         """
         Annuler le processus
         :return: None
         """
         self.destroy()
 
-    def changmt_option(self, event=None):
+    def changmt_option(self, event=None) -> None:
         """
         Recuperation des modèles depuis la base de données et changement des options
         :param event: event du OptionMenu
@@ -97,7 +98,7 @@ class Defenir_modele(tk.Toplevel):
         self.str_modele = lignes
         self.update_option_modele()
 
-    def update_option_modele(self):
+    def update_option_modele(self) -> None:
         """
         Mise à jour des options deroulant qui gère les modèles
         :return: None
@@ -110,7 +111,7 @@ class Defenir_modele(tk.Toplevel):
         self.option_modele = tk.OptionMenu(self.choix_frame, self.choix_modèle, *self.str_modele)
         self.option_modele.grid(row=1, column=0, padx=10)
 
-    def enregister_modele(self):
+    def enregister_modele(self) -> None:
         """
         Enregistre les fichers avec le type et modèle choisis
         :return: None

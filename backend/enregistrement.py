@@ -1,3 +1,5 @@
+import os
+
 import fitz
 
 from backend.classes.bases import Personne, Entreprise, Adresse
@@ -43,6 +45,9 @@ def enregistrer(liste_fichiers, database, image_processor, path) -> None:
             liste_coordonnées.append(dictionnaire_coordonnees)
         objet = image_processor.reconnaitre(images, liste_coordonnées, modele.avoir_type(), path)
         objet.modifier_fichier(fichier)
+        nom_fichier = os.path.split(fichier_path)[-1]
+        objet.modifier_nom_fichier(nom_fichier.split(".")[0])
+        objet.modifier_nom_modele(modele_str)
         if modele.type == "facture":
             database.ajouter_facture(objet)
         elif modele.type == "fiche de paie":

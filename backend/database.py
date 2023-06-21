@@ -8,6 +8,7 @@ from backend.classes.bases.entreprise import Entreprise
 from backend.classes.facture import Facture
 from backend.classes.modele import Modele
 
+
 class Database:
 
 	def __init__(self) -> None:
@@ -33,11 +34,13 @@ class Database:
 			'CREATE TABLE IF NOT EXISTS entreprises (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT, adresse INT, '
 			'FOREIGN KEY (adresse) REFERENCES adresses(id))',
 			'CREATE TABLE IF NOT EXISTS factures (id INTEGER PRIMARY KEY AUTOINCREMENT, acheteur INT, adresse_acheteur '
-			'INT, enseigne INT, prix_ht DOUBLE, prix_ttc DOUBLE, date_achat TEXT, fichier LONGBLOB, FOREIGN KEY ('
+			'INT, enseigne INT, prix_ht DOUBLE, prix_ttc DOUBLE, date_achat TEXT, fichier LONGBLOB,nom_fichier TEXT, '
+			'nom_modele TEXT, FOREIGN KEY ('
 			'acheteur) REFERENCES personnes(id), FOREIGN KEY (adresse_acheteur) REFERENCES adresses(id), FOREIGN KEY ('
 			'enseigne) REFERENCES entreprises(id))',
 			'CREATE TABLE IF NOT EXISTS fiches_paie (id INTEGER PRIMARY KEY AUTOINCREMENT, entreprise INT, '
-			'employe INT, date TEXT, revenu_brut DOUBLE, revenu_net DOUBLE, fichier LONGBLOB, FOREIGN KEY (entreprise) '
+			'employe INT, date TEXT, revenu_brut DOUBLE, revenu_net DOUBLE, fichier LONGBLOB, nom_fichier TEXT, '
+			'nom_modele TEXT, FOREIGN KEY (entreprise) '
 			'REFERENCES entreprises(id), FOREIGN KEY (employe) REFERENCES personnes(id) )',
 			'CREATE TABLE IF NOT EXISTS modeles (nom_modele TEXT PRIMARY KEY, type TEXT ,'
 			'rectangle_x1_1 FLOAT, rectangle_x1_2 FLOAT, rectangle_y1_1 FLOAT, rectangle_y1_2 FLOAT, '
@@ -86,8 +89,8 @@ class Database:
 		self.connexion.commit()
 		donnees = adresse.avoir_donnees()
 		nouvelle_adresse = Adresse(donnees["numero_rue"], donnees["adresse"], donnees["complement"],
-								   donnees["boite_postale"], donnees["code_postal"], donnees["ville"], donnees["pays"],
-								   curseur.lastrowid)
+		                           donnees["boite_postale"], donnees["code_postal"], donnees["ville"], donnees["pays"],
+		                           curseur.lastrowid)
 		curseur.close()
 		return nouvelle_adresse
 
@@ -197,7 +200,7 @@ class Database:
 			return self.avoir_personne(personne.avoir_identifiant())
 		curseur = self.connexion.cursor()
 		curseur.execute('INSERT INTO personnes (nom, prenom) VALUES (?, ?)',
-					   tuple(personne.avoir_donnees().values()))
+		                tuple(personne.avoir_donnees().values()))
 		self.connexion.commit()
 		donnees = personne.avoir_donnees()
 		nouvelle_personne = Personne(donnees["nom"], donnees["prenom"], curseur.lastrowid)
@@ -275,7 +278,7 @@ class Database:
 			return None
 		curseur = self.connexion.cursor()
 		curseur.execute("UPDATE personnes SET nom = ?, prenom = ? WHERE id = ?",
-					   tuple(nouvelle_personne.avoir_donnees().values()) + (id,))
+		                tuple(nouvelle_personne.avoir_donnees().values()) + (id,))
 		self.connexion.commit()
 		curseur.close()
 		return self.avoir_personne(id)
@@ -312,7 +315,7 @@ class Database:
 		adresse_entreprise = entreprise.avoir_adresse()
 		adresse_bdd = self.ajouter_adresse(adresse_entreprise)
 		curseur.execute("INSERT INTO entreprises (nom, adresse) VALUES (?, ?)",
-						 tuple((entreprise.avoir_nom(), adresse_bdd.avoir_identifiant())))
+		                tuple((entreprise.avoir_nom(), adresse_bdd.avoir_identifiant())))
 		donnees = entreprise.avoir_donnees()
 		entreprise_classe = Entreprise(donnees["nom"], adresse_bdd, curseur.lastrowid)
 		self.connexion.commit()
@@ -381,7 +384,7 @@ class Database:
 		nouvelle_adresse = self.ajouter_adresse(nouvelle_entreprise.avoir_adresse())
 		curseur = self.connexion.cursor()
 		curseur.execute("UPDATE entreprises SET nom = ?, adresse = ? WHERE id = ?",
-						(nouvelle_entreprise.avoir_nom, nouvelle_adresse.avoir_identifiant(), id))
+		                (nouvelle_entreprise.avoir_nom, nouvelle_adresse.avoir_identifiant(), id))
 		self.connexion.commit()
 		curseur.close()
 		return self.avoir_entreprise(id)
@@ -431,7 +434,8 @@ class Database:
 		donnees["acheteur"] = self.ajouter_personne(donnees["acheteur"]).avoir_identifiant()
 		curseur = self.connexion.cursor()
 		curseur.execute(
-			'INSERT INTO factures (acheteur, adresse_acheteur, enseigne, prix_ht, prix_ttc, date_achat, fichier) VALUES (?, ?, ?, ?, ?, ?, ?)',
+			'INSERT INTO factures (acheteur, adresse_acheteur, enseigne, prix_ht, prix_ttc, date_achat, fichier,'
+			' nom_fichier, nom_modele) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
 			tuple(donnees.values()))
 		self.connexion.commit()
 		curseur.close()
@@ -454,7 +458,8 @@ class Database:
 		adresse_acheteur = self.avoir_adresse(resultat[2])
 		enseigne = self.avoir_entreprise(resultat[3])
 		return Facture(acheteur, adresse_acheteur, enseigne, resultat[4], resultat[5], resultat[6], resultat[7],
-					   resultat[0])
+		               resultat[8], resultat[9],
+		               resultat[0])
 
 	def avoir_identifiant_facture(self, facture: Facture) -> int | None:
 		"""
@@ -483,7 +488,7 @@ class Database:
 			adresse_acheteur = self.avoir_adresse(facture[2])
 			enseigne = self.avoir_entreprise(facture[3])
 			facture_classe = Facture(acheteur, adresse_acheteur, enseigne, facture[4], facture[5], facture[6],
-									 facture[7], facture[0])
+			                         facture[7], resultat[8], resultat[9], facture[0])
 			factures.append(facture_classe)
 		curseur.close()
 		return factures
@@ -505,10 +510,13 @@ class Database:
 		nouvel_acheteur = self.ajouter_personne(nouvelle_facture.avoir_acheteur())
 		curseur = self.connexion.cursor()
 		curseur.execute(
-			"UPDATE factures SET acheteur = ?, adresse_acheteur = ?, enseigne = ?, prix_ht = ?, prix_ttc = ?, date_achat = ?, fichier = ? WHERE id = ?",
+			"UPDATE factures SET acheteur = ?, adresse_acheteur = ?, enseigne = ?, prix_ht = ?, prix_ttc = ?, "
+			"date_achat = ?, fichier = ?, nom_fichier = ?, nom_modele = ? WHERE id = ?",
 			(nouvel_acheteur.avoir_identifiant(), nouvelle_adresse_acheteur.avoir_identifiant(),
 			 nouvelle_enseigne.avoir_identifiant(), nouvelle_facture.avoir_prix_ht(), nouvelle_facture.avoir_prix_ttc(),
-			 nouvelle_facture.avoir_date_achat(), nouvelle_facture.avoir_fichier(), id))
+			 nouvelle_facture.avoir_date_achat(), nouvelle_facture.avoir_fichier(),
+			 nouvelle_facture.avoir_nom_fichier(),
+			 nouvelle_facture.avoir_nom_modele(), id))
 		self.connexion.commit()
 		curseur.close()
 		return self.avoir_facture(id)
@@ -560,7 +568,8 @@ class Database:
 		donnees["employé"] = personne_bdd.avoir_identifiant()
 		curseur = self.connexion.cursor()
 		curseur.execute(
-			'INSERT INTO fiches_paie (entreprise, employe, date, revenu_brut, revenu_net, fichier) VALUES (?, ?, ?, ?, ?, ?)',
+			'INSERT INTO fiches_paie (entreprise, employe, date, revenu_brut, revenu_net, fichier, nom_fichier, '
+			'nom_modele) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
 			tuple(donnees.values()))
 		self.connexion.commit()
 		curseur.close()
@@ -582,7 +591,8 @@ class Database:
 			return None
 		entreprise = self.avoir_entreprise(resultat[1])
 		employe = self.avoir_personne(resultat[2])
-		return Fiche_Paie(entreprise, employe, resultat[3], resultat[4], resultat[5], resultat[6], resultat[0])
+		return Fiche_Paie(entreprise, employe, resultat[3], resultat[4], resultat[5], resultat[6], resultat[7],
+		                  resultat[8], resultat[0])
 
 	def avoir_identifiant_fiche_paie(self, fiche_paie: Fiche_Paie) -> int | None:
 		"""
@@ -615,8 +625,11 @@ class Database:
 			revenu_brut = fiche_paie[4]
 			revenu_net = fiche_paie[5]
 			fichier = fiche_paie[6]
+			nom_fichier = fiche_paie[7]
+			nom_modele = fiche_paie[8]
 			id = fiche_paie[0]
-			fiche_paie_classe = Fiche_Paie(entreprise, employe, date, revenu_brut, revenu_net, fichier, id)
+			fiche_paie_classe = Fiche_Paie(entreprise, employe, date, revenu_brut, revenu_net, fichier,
+			                               nom_fichier, nom_modele, id)
 			fiches_paie.append(fiche_paie_classe)
 		curseur.close()
 		return fiches_paie
@@ -638,7 +651,8 @@ class Database:
 		donnees["employé"] = self.modifier_personne(donnees["employé"]).avoir_identifiant()
 		curseur = self.connexion.cursor()
 		curseur.execute(
-			'UPDATE fiches_paie SET entreprise = ?, employe = ?, date = ?, revenu_brut = ?, revenu_net = ?, fichier = ? WHERE id = ?',
+			'UPDATE fiches_paie SET entreprise = ?, employe = ?, date = ?, revenu_brut = ?, revenu_net = ?, fichier = ?,'
+			'nom_fichier = ?, nom_modele = ? WHERE id = ?',
 			tuple(donnees.values()))
 		self.connexion.commit()
 		curseur.close()
@@ -690,7 +704,7 @@ class Database:
 		string_bdd = "INSERT INTO modeles (nom_modele, type, "
 		values = [modele.avoir_nom().lower(), "facture"]
 		for i, donnee in enumerate(modele.avoir_donnees()):
-			string_bdd+= f"rectangle_x{i + 1}_1, rectangle_x{i + 1}_2, rectangle_y{i + 1}_1, rectangle_y{i + 1}_2, utilisation_rectangle{i+1}, page_rectangle{i+1}"
+			string_bdd += f"rectangle_x{i + 1}_1, rectangle_x{i + 1}_2, rectangle_y{i + 1}_1, rectangle_y{i + 1}_2, utilisation_rectangle{i + 1}, page_rectangle{i + 1}"
 			if i != (len(modele.avoir_donnees()) - 1):
 				string_bdd += ", "
 			values.append(donnee[f"rectangle_x{i + 1}_1"])
@@ -701,7 +715,7 @@ class Database:
 			values.append(donnee[f"page_rectangle{i + 1}"])
 		string_bdd += ") VALUES ("
 		for i in range(len(values)):
-			if i == (len(values)-1):
+			if i == (len(values) - 1):
 				string_bdd += "?)"
 			else:
 				string_bdd += "?,"
@@ -739,6 +753,7 @@ class Database:
 				donnees_dict["page"] = resultat[7 + i * 6]
 				liste_donnees.append(donnees_dict)
 		return Modele(liste_donnees)
+
 	def avoir_tous_les_modeles(self) -> list[Modele]:
 		"""
 		Permet d'avoir toutes les modèles de la base de données
@@ -807,7 +822,7 @@ class Database:
 		:rtype: bool
 		"""
 		curseur = self.connexion.cursor()
-		curseur.execute("SELECT * FROM modeles WHERE nom_modele = ?", (nom.lower(), ))
+		curseur.execute("SELECT * FROM modeles WHERE nom_modele = ?", (nom.lower(),))
 		resultat = curseur.fetchone()
 		curseur.close()
 		return resultat is not None
@@ -821,4 +836,3 @@ class Database:
 		liste_factures = self.avoir_toutes_les_factures()
 		liste_fiche = self.avoir_toutes_les_fiches_de_paie()
 		return liste_fiche + liste_factures
-

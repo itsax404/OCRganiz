@@ -121,7 +121,8 @@ class Image_Processor:
 		if type == "facture":
 			acheteur = Personne()
 			adresse = Adresse()
-			enseigne = Entreprise(adresse=Adresse())
+			adresse_entreprise = Adresse()
+			enseigne = Entreprise()
 			prix_ht = 0.0
 			prix_ttc = 0.0
 			date_achat = None
@@ -131,6 +132,7 @@ class Image_Processor:
 				sous_parties = [partie for partie in coordonnee["type"].split(".") if partie != ""]
 				coords = coordonnee["coordonnées"]
 				ocr = self.__crop_and_ocr__(coords, path).replace("\n", "")
+				print(f"{sous_parties} | {ocr}")
 				if len(sous_parties) == 1:
 					return None
 				if sous_parties[0] == "adresse":
@@ -157,23 +159,24 @@ class Image_Processor:
 							acheteur.modifier_prenom(ocr)
 
 				elif sous_parties[0] == "entreprise":
-					if len(sous_parties) == 3:
+					if len(sous_parties) == 4:
 						if sous_parties[1] == "adresse":
+							print(f"sous_partie = {sous_parties[2]}")
 							match sous_parties[2]:
 								case "numero":
-									enseigne.avoir_adresse().modifier_numero(ocr)
+									adresse_entreprise.modifier_numero(ocr)
 								case "rue":
-									enseigne.avoir_adresse().modifier_rue(ocr)
+									adresse_entreprise.modifier_rue(ocr)
 								case "complement":
-									enseigne.avoir_adresse().modifier_complement(ocr)
+									adresse_entreprise.modifier_complement(ocr)
 								case "boite_postale":
-									enseigne.avoir_adresse().modifier_boite_postale(ocr)
+									adresse_entreprise.modifier_boite_postale(ocr)
 								case "code postal":
-									enseigne.avoir_adresse().modifier_code_postal(ocr)
+									adresse_entreprise.modifier_code_postal(ocr)
 								case "ville":
-									enseigne.avoir_adresse().modifier_ville(ocr)
+									adresse_entreprise.modifier_ville(ocr)
 								case "pays":
-									enseigne.avoir_adresse().modifier_pays(ocr)
+									adresse_entreprise.modifier_pays(ocr)
 					if len(sous_parties) == 2:
 						if sous_parties[1] == "nom":
 							enseigne.modifier_nom(ocr)
@@ -191,6 +194,9 @@ class Image_Processor:
 				a = os.path.join(path, "output", "output_temp.jpg")
 				if os.path.isfile(a):
 					os.remove(a)
+			enseigne.modifier_adresse(adresse_entreprise)
+			print(adresse.avoir_donnees())
+			print(enseigne.avoir_adresse().avoir_donnees())
 			return Facture(acheteur, adresse, enseigne, prix_ht, prix_ttc, date_achat)
 
 		elif type == "fiche_de_paie":

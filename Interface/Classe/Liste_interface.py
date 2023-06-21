@@ -183,9 +183,9 @@ class Liste_interface_c(tk.Frame):
         if fichiers_Bdd != None:
             for fichier in fichiers_Bdd:
                 id = fichier.avoir_identifiant()
-                modele = fichier.avoir_donnees()
-                # print(modele["fichier"])
-                self.tv.insert(parent='', index='end', values=("None", "none", "None"))
+                modele = fichier.avoir_nom_modele()
+                nom_fichier = fichier.avoir_nom_fichier()
+                self.tv.insert(parent='', index='end', values=("None", nom_fichier, modele))
 
 
 class Menu_p(tk.Frame):

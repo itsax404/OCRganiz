@@ -1,6 +1,7 @@
 import os
 from backend.classes.modele import Modele
 from backend.database import Database
+import json
 
 
 class Importateur():

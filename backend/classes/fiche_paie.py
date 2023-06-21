@@ -45,7 +45,9 @@ class Fiche_Paie:
 			"date": self.date,
 			"revenu_brut": self.revenu_brut,
 			"revenu_net": self.revenu_net,
-			"fichier": self.fichier
+			"fichier": self.fichier,
+			"nom_fichier" : self.nom_fichier,
+			"nom_modele": self.nom_modele
 		}
 
 	def avoir_identifiant(self) -> int:

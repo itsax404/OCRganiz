@@ -488,7 +488,7 @@ class Database:
 			adresse_acheteur = self.avoir_adresse(facture[2])
 			enseigne = self.avoir_entreprise(facture[3])
 			facture_classe = Facture(acheteur, adresse_acheteur, enseigne, facture[4], facture[5], facture[6],
-			                         facture[7], resultat[8], resultat[9], facture[0])
+			                         facture[7], facture[8], facture[9], facture[0])
 			factures.append(facture_classe)
 		curseur.close()
 		return factures

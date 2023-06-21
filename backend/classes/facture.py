@@ -65,6 +65,7 @@ class Facture:
 			"date_achat": self.date_achat,
 			"fichier": self.fichier,
 			"nom_fichier" : self.nom_fichier,
+			"nom_modele": self.nom_modele
 		}
 
 	def __eq__(self, other: object) -> bool:

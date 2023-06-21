@@ -39,7 +39,7 @@ class Save_modele(tk.Toplevel):
         label_frame = tk.Frame(master=self)
         label_frame.grid(row=0, column=0)
 
-        label_text = tk.Label(master=label_frame, text="Voulez-vous vraiment enregister ?")
+        label_text = tk.Label(master=label_frame, text="Voulez-vous vraiment enregistrer ?")
         label_text.grid(row=0, column=2, padx=10, pady=10)
 
         self.nom_modele = tk.Text(master=label_frame, height=1, width=20)
